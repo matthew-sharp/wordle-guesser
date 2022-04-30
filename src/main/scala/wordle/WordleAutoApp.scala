@@ -8,7 +8,14 @@ object WordleAutoApp extends App {
   val rows = 5
   val cols = 26
 
-  val wordsSource = Source.fromFile("wordlist")
+  val wordsSource = 
+    if (Files.exists(Paths.get("wordlist"))) {
+      Source.fromFile("wordlist")
+    }
+    else {
+      println("wordlist not found in current directory, using built-in word list")
+      Source.fromResource("wordlist")
+    }
   var words = wordsSource.getLines().toSet
   wordsSource.close()
   var freqTable = Array.ofDim[Int](rows, cols)
