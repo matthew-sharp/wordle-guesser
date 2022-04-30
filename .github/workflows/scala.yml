@@ -28,4 +28,5 @@ jobs:
     - name: upload artifact
       uses: actions/upload-artifact@v3
       with:
+        name: wordle.zip
         path: target/universal/wordle-*.zip
