@@ -35,12 +35,19 @@ object wordle extends App {
     }.toList
   }
 
-  def pruneWords(words: Set[String], constrains: List[Constraint]): Set[String] = {
-    val filteredWords = constrains.zipWithIndex.foldLeft(words)
+  // Non handled cases:
+  // * Multiple letter guessed, more than 1 but not all present
+  // * Multiple yellows in result
+  def pruneWords(words: Set[String], constraints: List[Constraint]): Set[String] = {
+    val conCharsCount = constraints.filter(_.constraintType != ConstraintType.Absent).groupMapReduce(_.c)(_ => 1)(_ + _)
+    val filteredWords = constraints.zipWithIndex.foldLeft(words)
     { (acc, con) => con match {
       case (Constraint(c, ConstraintType.Position), i) => acc.filter(_.charAt(i) == c)
       case (Constraint(c, ConstraintType.Exists), i) => acc.filter(w => w.contains(c) && w.charAt(i) != c)
-      case (Constraint(c, ConstraintType.Absent), _) => acc.filter(!_.contains(c))
+      case (Constraint(c, ConstraintType.Absent), _) => conCharsCount.get(c) match {
+        case None => acc.filter(!_.contains(c))
+        case Some(_) => acc
+      }
     }}
     filteredWords
   }
