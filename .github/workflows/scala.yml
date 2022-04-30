@@ -25,3 +25,7 @@ jobs:
       run: sbt test
     - name: universal package bin
       run: sbt universal:packageBin
+    - name: upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        path: target/universal/wordle-*.zip
