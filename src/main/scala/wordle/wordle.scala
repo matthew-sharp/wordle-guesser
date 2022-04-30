@@ -1,6 +1,5 @@
 package wordle
 
-import java.io.{FileInputStream, ObjectInputStream}
 import scala.io.Source
 import scala.io.StdIn.readLine
 
@@ -11,22 +10,13 @@ object wordle extends App {
   val wordsSource = Source.fromFile("wordlist")
   var words = wordsSource.getLines().toSet
   wordsSource.close()
-
-  val freqTableReader = new ObjectInputStream(new FileInputStream("freq-table"))
-  val freqTable = freqTableReader.readObject.asInstanceOf[Array[Array[Int]]]
-  freqTableReader.close()
-
-  val scorer = new WordScorer(freqTable)
-  val validLetters = Array.ofDim[Boolean](5, 26)
-
-  for (r <- 0 until rows) {
-    for (c <- 0 until cols) {
-      validLetters(r)(c) = true
-    }
-  }
+  var freqTable = Array.ofDim[Int](rows, cols)
 
   while(true) {
-    val candidateWord = words.maxBy(scorer.score(_))
+    println(s"${words.size} possible words")
+    print("selecting candidate: ")
+    freqTable = FrequencyCalculator.calc(words)
+    val candidateWord = words.maxBy(WordScorer.score(_, freqTable))
     println(candidateWord)
     print("result?: ")
     val cons = readResult(candidateWord)
@@ -46,9 +36,12 @@ object wordle extends App {
   }
 
   def pruneWords(words: Set[String], constrains: List[Constraint]): Set[String] = {
-    val lettersToPrune = constrains.filter(_.constraintType == ConstraintType.Absent).map(_.c)
-    words.filter {
-      w => !lettersToPrune.exists(w.contains(_))
-    }
+    val filteredWords = constrains.zipWithIndex.foldLeft(words)
+    { (acc, con) => con match {
+      case (Constraint(c, ConstraintType.Position), i) => acc.filter(_.charAt(i) == c)
+      case (Constraint(c, ConstraintType.Exists), i) => acc.filter(w => w.contains(c) && w.charAt(i) != c)
+      case (Constraint(c, ConstraintType.Absent), _) => acc.filter(!_.contains(c))
+    }}
+    filteredWords
   }
 }
