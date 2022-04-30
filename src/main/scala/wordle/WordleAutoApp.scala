@@ -1,6 +1,8 @@
 package wordle
 
 import scala.io.Source
+import java.nio.file.Files
+import java.nio.file.Paths
 
 object WordleAutoApp extends App {
   val answer = args(0)
