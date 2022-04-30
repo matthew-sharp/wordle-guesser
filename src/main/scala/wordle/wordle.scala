@@ -39,12 +39,16 @@ object wordle extends App {
   // * Multiple letter guessed, more than 1 but not all present
   // * Multiple yellows in result
   def pruneWords(words: Set[String], constraints: List[Constraint]): Set[String] = {
-    val conCharsCount = constraints.filter(_.constraintType != ConstraintType.Absent).groupMapReduce(_.c)(_ => 1)(_ + _)
-    val filteredWords = constraints.zipWithIndex.foldLeft(words)
+    val conCharsMin = constraints.filter(_.constraintType != ConstraintType.Absent).groupMapReduce(_.c)(_ => 1)(_ + _)
+    val lettersOverUpperBound = constraints.filter(_.constraintType == ConstraintType.Absent).map(_.c).toSet
+    val freqCappedWords = lettersOverUpperBound.foldLeft(words){
+      (acc, charToDrop) => acc.filter(_.toList.count(_ == charToDrop) <= conCharsMin.getOrElse(charToDrop, 0))
+    }
+    val filteredWords = constraints.zipWithIndex.foldLeft(freqCappedWords)
     { (acc, con) => con match {
       case (Constraint(c, ConstraintType.Position), i) => acc.filter(_.charAt(i) == c)
       case (Constraint(c, ConstraintType.Exists), i) => acc.filter(w => w.contains(c) && w.charAt(i) != c)
-      case (Constraint(c, ConstraintType.Absent), _) => conCharsCount.get(c) match {
+      case (Constraint(c, ConstraintType.Absent), _) => conCharsMin.get(c) match {
         case None => acc.filter(!_.contains(c))
         case Some(_) => acc
       }
