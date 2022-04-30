@@ -69,4 +69,17 @@ class MarkerSpec extends AnyFlatSpec with should.Matchers {
     )
     res should contain theSameElementsInOrderAs expected
   }
+
+  it should "give a correct yellow when following a green" in {
+    val res = Marker.mark("cooly", "colon")
+
+    val expected = List[Constraint](
+      Constraint('c', ConstraintType.Position),
+      Constraint('o', ConstraintType.Position),
+      Constraint('o', ConstraintType.Exists),
+      Constraint('l', ConstraintType.Exists),
+      Constraint('y', ConstraintType.Absent),
+    )
+    res should contain theSameElementsInOrderAs expected
+  }
 }

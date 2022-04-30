@@ -14,7 +14,8 @@ object Marker {
     val res = guess.zip(answer).foldLeft((Map[Char, Int](), List[Constraint]()))(
       (acc, z) => z match {
         case(g, a) =>
-          val updatedLetterFreq = acc._1.getOrElse(g, 0) + 1
+          val increment = if(g == a) 0 else 1
+          val updatedLetterFreq = acc._1.getOrElse(g, 0) + increment
           val updatedCounts = acc._1 + (g -> updatedLetterFreq)
           val newConstraint = if (g == a) {
             Constraint(g, ConstraintType.Position)
