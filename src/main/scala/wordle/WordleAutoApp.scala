@@ -1,9 +1,10 @@
 package wordle
 
 import scala.io.Source
-import scala.io.StdIn.readLine
 
-object wordle extends App {
+object WordleAutoApp extends App {
+  val answer = args(0)
+
   val rows = 5
   val cols = 26
 
@@ -12,26 +13,14 @@ object wordle extends App {
   wordsSource.close()
   var freqTable = Array.ofDim[Int](rows, cols)
 
-  while(true) {
+  while (true) {
     println(s"${words.size} possible words")
     print("selecting candidate: ")
     freqTable = FrequencyCalculator.calc(words)
     val candidateWord = words.maxBy(WordScorer.score(_, freqTable))
     println(candidateWord)
-    print("result?: ")
-    val cons = readResult(candidateWord)
+    val cons = Marker.mark(candidateWord, answer)
+    if (cons.forall(_.constraintType == ConstraintType.Position)) System.exit(0)
     words = WordPruner.pruneWords(words, cons)
-  }
-
-  def readResult(word: String): List[Constraint] = {
-    val raw = readLine().zip(word)
-    raw.map { case (rawType, c) =>
-      val conType = rawType match {
-        case 'b' => ConstraintType.Absent
-        case 'y' => ConstraintType.Exists
-        case 'g' => ConstraintType.Position
-      }
-      Constraint(c, conType)
-    }.toList
   }
 }
