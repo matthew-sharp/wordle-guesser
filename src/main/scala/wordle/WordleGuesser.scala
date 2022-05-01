@@ -27,10 +27,10 @@ class WordleGuesser(words: Set[String], resultCallback: String => List[Constrain
 
   def avoidDoubleFactor(guessNum: Int, candidate: String): Double = {
     val guessFactor = Array[Double](1.5, 1.35, 1.2, 1.1, 1, 1, 1, 1, 1, 1).apply(guessNum - 1)
-    val avoidFactor = if(guessFactor < 1.01) Math.E else {
+    if(guessFactor < 1.01) 1
+    else {
       val uniqueLettersInWord = candidate.toSet.size
-      uniqueLettersInWord * guessFactor
+      Math.log(uniqueLettersInWord * guessFactor)
     }
-    Math.log(avoidFactor)
   }
 }
