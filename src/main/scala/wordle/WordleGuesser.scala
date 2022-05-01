@@ -26,7 +26,7 @@ class WordleGuesser(words: Set[String], resultCallback: String => List[Constrain
   }
 
   def avoidDoubleFactor(guessNum: Int, candidate: String): Double = {
-    val guessFactor = Array[Double](2, 1.75, 1.5, 1.25, 1, 1, 1, 1, 1, 1).apply(guessNum - 1)
+    val guessFactor = Array[Double](1.5, 1.35, 1.2, 1.1, 1, 1, 1, 1, 1, 1).apply(guessNum - 1)
     val avoidFactor = if(guessFactor < 1.01) Math.E else {
       val uniqueLettersInWord = candidate.toSet.size
       uniqueLettersInWord * guessFactor
