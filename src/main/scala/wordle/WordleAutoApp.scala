@@ -19,7 +19,13 @@ object WordleAutoApp extends App {
   wordsSource.close()
 
   val guesser = new WordleGuesser(
-    words = words, resultCallback = guess => Marker.mark(guess, answer))
+    words = words,
+    resultCallback = guess => Marker.mark(guess, answer),
+    candidate => {
+      print("selecting candidate: ")
+      println(candidate)
+      candidate
+    })
 
   val (numGuesses, _) = guesser.guess()
   println(s"answer \"$answer\" found in $numGuesses guesses")

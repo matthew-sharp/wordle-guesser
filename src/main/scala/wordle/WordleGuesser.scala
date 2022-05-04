@@ -1,6 +1,9 @@
 package wordle
 
-class WordleGuesser(words: Set[String], resultCallback: String => List[Constraint]) {
+class WordleGuesser(
+                     words: Set[String],
+                     resultCallback: String => List[Constraint],
+                     guessCallback: String => String) {
   val rows = 5
   val cols = 26
 
@@ -8,21 +11,20 @@ class WordleGuesser(words: Set[String], resultCallback: String => List[Constrain
   private var cons: List[Constraint] = List[Constraint]()
 
   def guess(): (Int, String) = {
-    var candidateWord = ""
+    var guessWord = ""
     var guessNum = 0
     do {
       guessNum += 1
       println(s"${currentlyValidWords.size} possible words")
-      print("selecting candidate: ")
       val freqTable = FrequencyCalculator.calc(currentlyValidWords)
-      candidateWord = currentlyValidWords.maxBy { candidate =>
+      val candidateWord = currentlyValidWords.maxBy { candidate =>
           WordScorer.geomeanScorer(candidate, freqTable) * avoidDoubleFactor(guessNum, candidate)
       }
-      println(candidateWord)
-      cons = resultCallback(candidateWord)
+      guessWord = guessCallback(candidateWord)
+      cons = resultCallback(guessWord)
       currentlyValidWords = WordPruner.pruneWords(currentlyValidWords, cons)
     } while (!cons.forall(_.constraintType == ConstraintType.Position))
-    (guessNum, candidateWord)
+    (guessNum, guessWord)
   }
 
   def avoidDoubleFactor(guessNum: Int, candidate: String): Double = {

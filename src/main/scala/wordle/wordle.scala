@@ -17,15 +17,22 @@ object wordle extends App {
   val words = wordsSource.getLines().toSet
   wordsSource.close()
 
-  val guesser = new WordleGuesser(words, guess => {
-    print("result?: ")
-    readResult(guess)
-  })
+  val guesser = new WordleGuesser(words,
+    guess => {
+      print("result?: ")
+      readResult(guess)},
+    candidate => {
+      print(s"enter guess (blank to accept candidate '${candidate}'): ")
+      val input = readLine()
+      if (input.isEmpty) candidate else input
+    }
+  )
 
   guesser.guess()
 
   def readResult(word: String): List[Constraint] = {
     val raw = readLine().zip(word)
+    println()
     raw.map { case (rawType, c) =>
       val conType = rawType match {
         case 'b' => ConstraintType.Absent
