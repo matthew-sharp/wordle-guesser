@@ -9,9 +9,14 @@ object WordScorer {
     }.sum
   }
 
-  def geomeanScorer(word: String, freqTable: Array[Array[Int]]): Double = {
-    word.toArray.zipWithIndex.map {
+  def geomeanScorer(word: String,
+                    freqTable: Array[Array[Int]],
+                    letterFreqTable: Array[Int],
+                   ): Double = {
+    val letterPositionScore = word.toArray.zipWithIndex.map {
       case (c, i) => freqTable(i)(c.toInt - 'a')
-    }.toSeq.logSumExp
+    }.toSeq.logSum
+    val letterScore = word.toArray.map(c => letterFreqTable(c.toInt - 'a')).toSeq.logSum
+    letterPositionScore + letterScore / 2
   }
 }

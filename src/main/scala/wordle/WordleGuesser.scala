@@ -17,8 +17,9 @@ class WordleGuesser(
       guessNum += 1
       println(s"${currentlyValidWords.size} possible words")
       val freqTable = FrequencyCalculator.calc(currentlyValidWords)
+      val letterFreq = FrequencyCalculator.calcLetterFreq(freqTable)
       val candidateWord = currentlyValidWords.maxBy { candidate =>
-          WordScorer.geomeanScorer(candidate, freqTable) * avoidDoubleFactor(guessNum, candidate)
+          WordScorer.geomeanScorer(candidate, freqTable, letterFreq) * avoidDoubleFactor(guessNum, candidate)
       }
       guessWord = guessCallback(candidateWord)
       cons = resultCallback(guessWord)

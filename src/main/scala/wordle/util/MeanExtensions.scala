@@ -10,7 +10,7 @@ object MeanExtensions {
       Math.exp(sumLog/num)
     }
 
-    def logSumExp: Double = {
+    def logSum: Double = {
       elems.map(Math.log(_)).sum
     }
   }

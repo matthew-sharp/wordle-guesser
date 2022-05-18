@@ -9,6 +9,14 @@ object FrequencyCalculator {
     vector
   }.reduce(matrixSum)
 
+  def calcLetterFreq(freqTable: Array[Array[Int]]): Array[Int] = {
+    val letterFreq = new Array[Int](26)
+    for (j <- 0 to 25) {
+      letterFreq(j) = (0 to 4).foldLeft(0)((sum, i) => freqTable(i)(j) + sum)
+    }
+    letterFreq
+  }
+
   def matrixSum(m1: Array[Array[Int]], m2: Array[Array[Int]]): Array[Array[Int]] = {
     val rows = 5
     val cols = 26
