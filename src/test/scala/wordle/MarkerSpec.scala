@@ -82,4 +82,56 @@ class MarkerSpec extends AnyFlatSpec with should.Matchers {
     )
     res should contain theSameElementsInOrderAs expected
   }
+
+  it should "mark speed correctly when answer is abide" in {
+    val res = Marker.mark("speed", "abide")
+
+    val expected = List[Constraint](
+      Constraint('s', ConstraintType.Absent),
+      Constraint('p', ConstraintType.Absent),
+      Constraint('e', ConstraintType.Exists),
+      Constraint('e', ConstraintType.Absent),
+      Constraint('d', ConstraintType.Exists),
+    )
+    res should contain theSameElementsInOrderAs expected
+  }
+
+  it should "mark speed correctly when answer is erase" in {
+    val res = Marker.mark("speed", "erase")
+
+    val expected = List[Constraint](
+      Constraint('s', ConstraintType.Exists),
+      Constraint('p', ConstraintType.Absent),
+      Constraint('e', ConstraintType.Exists),
+      Constraint('e', ConstraintType.Exists),
+      Constraint('d', ConstraintType.Absent),
+    )
+    res should contain theSameElementsInOrderAs expected
+  }
+
+  it should "mark speed correctly when answer is steal" in {
+    val res = Marker.mark("speed", "steal")
+
+    val expected = List[Constraint](
+      Constraint('s', ConstraintType.Position),
+      Constraint('p', ConstraintType.Absent),
+      Constraint('e', ConstraintType.Position),
+      Constraint('e', ConstraintType.Absent),
+      Constraint('d', ConstraintType.Absent),
+    )
+    res should contain theSameElementsInOrderAs expected
+  }
+
+  it should "mark speed correctly when answer is crepe" in {
+    val res = Marker.mark("speed", "crepe")
+
+    val expected = List[Constraint](
+      Constraint('s', ConstraintType.Absent),
+      Constraint('p', ConstraintType.Exists),
+      Constraint('e', ConstraintType.Position),
+      Constraint('e', ConstraintType.Exists),
+      Constraint('d', ConstraintType.Absent),
+    )
+    res should contain theSameElementsInOrderAs expected
+  }
 }
