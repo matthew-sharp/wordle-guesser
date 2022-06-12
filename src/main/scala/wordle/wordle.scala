@@ -2,6 +2,7 @@ package wordle
 
 import scala.io.Source
 import scala.io.StdIn.readLine
+import model.{Constraint, ConstraintType}
 import java.nio.file.Files
 import java.nio.file.Paths
 

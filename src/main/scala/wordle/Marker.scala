@@ -1,5 +1,7 @@
 package wordle
 
+import model.{Constraint, ConstraintType}
+
 object Marker {
   def mark(guess: String, answer: String): List[Constraint] = {
     val countsInCorrectPosition = guess.zip(answer).foldLeft(Map[Char, Int]())(

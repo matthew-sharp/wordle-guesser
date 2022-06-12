@@ -1,5 +1,8 @@
 package wordle
 
+import model.{Constraint, ConstraintType}
+import scala.collection.parallel.CollectionConverters._
+
 class WordleGuesser(
                      words: Set[String],
                      resultCallback: String => List[Constraint],

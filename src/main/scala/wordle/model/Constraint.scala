@@ -1,4 +1,4 @@
-package wordle
+package wordle.model
 
 case class Constraint (
                         c: Char,

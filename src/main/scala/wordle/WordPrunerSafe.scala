@@ -1,5 +1,7 @@
 package wordle
 
+import model.Constraint
+
 object WordPrunerSafe {
   def pruneWords(words: Set[String], constraints: List[Constraint]): Set[String] = {
     val guess = constraints.map(_.c).mkString

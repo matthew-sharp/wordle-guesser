@@ -1,5 +1,6 @@
 package wordle
 
+import model.{Constraint, ConstraintType}
 import org.scalatest._
 import flatspec._
 import matchers._
