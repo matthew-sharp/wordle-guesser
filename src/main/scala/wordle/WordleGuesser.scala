@@ -5,13 +5,15 @@ import scala.collection.parallel.CollectionConverters._
 
 class WordleGuesser(
                      words: Set[String],
-                     resultCallback: String => List[Constraint],
+                     resultCallback: String => Seq[Constraint],
                      guessCallback: String => String) {
   val rows = 5
   val cols = 26
 
   private var currentlyValidWords: Set[String] = words
-  private var cons: List[Constraint] = List[Constraint]()
+  private var cons: Seq[Constraint] = List[Constraint]()
+
+  val scorer = new EntropyScorer
 
   def guess(): (Int, String) = {
     var guessWord = ""
@@ -19,10 +21,10 @@ class WordleGuesser(
     do {
       guessNum += 1
       println(s"${currentlyValidWords.size} possible words")
-      val freqTable = FrequencyCalculator.calc(currentlyValidWords)
-      val letterFreq = FrequencyCalculator.calcLetterFreq(freqTable)
-      val candidateWord = currentlyValidWords.maxBy { candidate =>
-          WordScorer.geomeanScorer(candidate, freqTable, letterFreq) * avoidDoubleFactor(guessNum, candidate)
+      //val freqTable = FrequencyCalculator.calc(currentlyValidWords)
+      //val letterFreq = FrequencyCalculator.calcLetterFreq(freqTable)
+      val candidateWord = currentlyValidWords.take(1000).par.minBy { candidate =>
+          scorer.entropy(candidate, currentlyValidWords)
       }
       guessWord = guessCallback(candidateWord)
       cons = resultCallback(guessWord)

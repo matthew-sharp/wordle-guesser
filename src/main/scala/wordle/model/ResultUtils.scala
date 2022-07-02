@@ -4,11 +4,11 @@ import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 
 object ResultUtils {
-  def toTernary(results: Seq[Constraint]): Short = {
+  def toTernary(results: Seq[ConstraintType]): Short = {
     results match {
       case Nil => 1
       case head :: tail =>
-        val trit: Short = head.constraintType match {
+        val trit: Short = head match {
           case ConstraintType.Absent => 0
           case ConstraintType.Exists => 1
           case ConstraintType.Position => 2
@@ -31,8 +31,7 @@ object ResultUtils {
       Nil
   }
 
-  def toBytes(results: Seq[Constraint]): Array[Byte] = {
-    val word = results.map(_.c).mkString
+  def toBytes(word: String, results: Seq[ConstraintType]): Array[Byte] = {
     val ternary = toTernary(results)
     val bb = ByteBuffer.allocate(7)
     bb.put(word.getBytes(StandardCharsets.UTF_8))

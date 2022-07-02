@@ -9,7 +9,7 @@ class ResultUtilsSpec extends AnyFlatSpec with should.Matchers {
     val word = "c"
     val cons = List(Constraint('c', ConstraintType.Position))
 
-    val res = toConstraints(toTernary(cons), word)
+    val res = toConstraints(toTernary(cons.map(_.constraintType)), word)
 
     res should contain theSameElementsInOrderAs cons
   }
@@ -21,7 +21,7 @@ class ResultUtilsSpec extends AnyFlatSpec with should.Matchers {
       Constraint('a', ConstraintType.Absent)
     )
 
-    val res = toConstraints(toTernary(cons), word)
+    val res = toConstraints(toTernary(cons.map(_.constraintType)), word)
 
     res should contain theSameElementsInOrderAs cons
   }
@@ -33,7 +33,7 @@ class ResultUtilsSpec extends AnyFlatSpec with should.Matchers {
       Constraint('a', ConstraintType.Exists)
     )
 
-    val res = toConstraints(toTernary(cons), word)
+    val res = toConstraints(toTernary(cons.map(_.constraintType)), word)
 
     res should contain theSameElementsInOrderAs cons
   }
@@ -48,7 +48,7 @@ class ResultUtilsSpec extends AnyFlatSpec with should.Matchers {
       Constraint('s', ConstraintType.Absent),
     )
 
-    val res = toConstraints(toTernary(cons), word)
+    val res = toConstraints(toTernary(cons.map(_.constraintType)), word)
 
     res.size shouldEqual 5
     res should contain theSameElementsInOrderAs cons
@@ -64,13 +64,14 @@ class ResultUtilsSpec extends AnyFlatSpec with should.Matchers {
       Constraint('s', ConstraintType.Position),
     )
 
-    val res = toConstraints(toTernary(cons), word)
+    val res = toConstraints(toTernary(cons.map(_.constraintType)), word)
 
     res.size shouldEqual 5
     res should contain theSameElementsInOrderAs cons
   }
 
   "ResultUtils.bytes" should "correctly handle a 5 letter word" in {
+    val word = "array"
     val cons = List(
       Constraint('a', ConstraintType.Exists),
       Constraint('r', ConstraintType.Position),
@@ -79,7 +80,7 @@ class ResultUtilsSpec extends AnyFlatSpec with should.Matchers {
       Constraint('y', ConstraintType.Exists),
     )
 
-    val res = toConstraints(toBytes(cons))
+    val res = toConstraints(toBytes(word, cons.map(_.constraintType)))
 
     res.size shouldEqual 5
     res should contain theSameElementsInOrderAs cons
