@@ -11,6 +11,11 @@ object Terminal {
     if (input.isEmpty) candidate else input
   }
 
+  def printGuess(candidate: String): String = {
+    println(s"selecting candidate $candidate")
+    candidate
+  }
+
   def readResult(word: String): List[Constraint] = {
     print("result? ")
     val raw = readLine().zip(word)
