@@ -1,6 +1,6 @@
-package wordle
+package wordle.util
 
-import model.Constraint
+import wordle.model.Constraint
 
 object WordPrunerSafe {
   def pruneWords(words: Set[String], constraints: List[Constraint]): Set[String] = {

@@ -1,5 +1,6 @@
 package wordle
 
+import util.Marker
 import scala.io.Source
 import java.nio.file.Files
 import java.nio.file.Paths

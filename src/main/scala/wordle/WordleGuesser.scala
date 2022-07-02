@@ -1,6 +1,9 @@
 package wordle
 
+import entropy.EntropyScorer
 import model.{Constraint, ConstraintType}
+import util.WordPruner
+
 import scala.collection.parallel.CollectionConverters._
 
 class WordleGuesser(

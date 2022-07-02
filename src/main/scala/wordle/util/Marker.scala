@@ -1,6 +1,6 @@
-package wordle
+package wordle.util
 
-import model.{Constraint, ConstraintType}
+import wordle.model.{Constraint, ConstraintType}
 
 object Marker {
   def mark(guess: String, answer: String): Seq[Constraint] = {
@@ -20,8 +20,8 @@ object Marker {
     val answerCharFreq = answer.toCharArray.groupMapReduce(identity)(_ => 1)(_ + _)
     guess.zip(answer).foldLeft((Map[Char, Int](), List[ConstraintType]()))(
       (acc, z) => z match {
-        case(g, a) =>
-          val increment = if(g == a) 0 else 1
+        case (g, a) =>
+          val increment = if (g == a) 0 else 1
           val updatedLetterFreq = acc._1.getOrElse(g, 0) + increment
           val updatedCounts = acc._1 + (g -> updatedLetterFreq)
           val newConstraint = if (g == a) {

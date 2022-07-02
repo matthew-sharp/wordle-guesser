@@ -1,4 +1,4 @@
-package wordle
+package wordle.util
 
 object FrequencyCalculator {
   def calc(words: Set[String]): Array[Array[Int]] = words.map { w =>

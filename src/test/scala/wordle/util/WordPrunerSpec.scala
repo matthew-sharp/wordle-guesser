@@ -1,8 +1,8 @@
-package wordle
+package wordle.util
 
-import model.{Constraint, ConstraintType}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
+import wordle.model.{Constraint, ConstraintType}
 
 class WordPrunerSpec extends AnyFlatSpec with should.Matchers {
   "WordPruner.pruneWords" should "correctly filter out steal when the guess is speed" in {

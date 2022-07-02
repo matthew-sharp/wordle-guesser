@@ -1,9 +1,9 @@
-package wordle
+package wordle.util
 
-import model.{Constraint, ConstraintType}
 import org.scalatest._
-import flatspec._
-import matchers._
+import org.scalatest.flatspec._
+import org.scalatest.matchers._
+import wordle.model.{Constraint, ConstraintType}
 
 class MarkerSpec extends AnyFlatSpec with should.Matchers {
   "Marker.mark" should "correctly mark all black for complete miss" in {
