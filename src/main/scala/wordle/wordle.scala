@@ -1,8 +1,9 @@
 package wordle
 
 import scala.io.Source
-import scala.io.StdIn.readLine
-import model.{Constraint, ConstraintType}
+import io.Terminal
+import util.WordPruner
+
 import java.nio.file.Files
 import java.nio.file.Paths
 
@@ -18,29 +19,14 @@ object wordle extends App {
   val words = wordsSource.getLines().toSet
   wordsSource.close()
 
-  val guesser = new WordleGuesser(words,
-    guess => {
-      print("result?: ")
-      readResult(guess)},
-    candidate => {
-      print(s"enter guess (blank to accept candidate '${candidate}'): ")
-      val input = readLine()
-      if (input.isEmpty) candidate else input
-    }
+  val guesser = new WordleGuesser(
+    words,
+    WordScorer.score,
+    WordPruner.pruneWords,
+    Terminal.readGuess,
+    Terminal.readResult,
   )
 
   guesser.guess()
 
-  def readResult(word: String): List[Constraint] = {
-    val raw = readLine().zip(word)
-    println()
-    raw.map { case (rawType, c) =>
-      val conType = rawType match {
-        case 'b' => ConstraintType.Absent
-        case 'y' => ConstraintType.Exists
-        case 'g' => ConstraintType.Position
-      }
-      Constraint(c, conType)
-    }.toList
-  }
 }

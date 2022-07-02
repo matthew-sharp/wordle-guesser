@@ -1,6 +1,7 @@
 package wordle
 
-import util.Marker
+import util.{Marker, WordPruner}
+
 import scala.io.Source
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -21,12 +22,15 @@ object WordleAutoApp extends App {
 
   val guesser = new WordleGuesser(
     words = words,
-    resultCallback = guess => Marker.mark(guess, answer),
+    WordScorer.score,
+    WordPruner.pruneWords,
     candidate => {
       print("selecting candidate: ")
       println(candidate)
       candidate
-    })
+    },
+    resultCallback = guess => Marker.mark(guess, answer),
+)
 
   val (numGuesses, _) = guesser.guess()
   println(s"answer \"$answer\" found in $numGuesses guesses")
