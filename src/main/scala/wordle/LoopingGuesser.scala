@@ -5,6 +5,7 @@ import util.{Marker, WordPruner}
 
 import java.nio.file.{Files, Paths}
 import scala.io.StdIn.readLine
+import scala.util.control.Breaks.break
 
 class LoopingGuesser() {
   def loop(words: Set[String], scorer: Scorer, answerWords: Option[Set[String]] = None): Unit = {
@@ -12,6 +13,7 @@ class LoopingGuesser() {
     while(true) {
       print("enter word to solve: ")
       val answer = readLine()
+      if (answer.isEmpty) break
       val wordGuesser = new WordleGuesser(
         words,
         scorer,
