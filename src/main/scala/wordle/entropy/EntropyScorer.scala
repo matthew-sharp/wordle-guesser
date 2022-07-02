@@ -10,6 +10,7 @@ class EntropyScorer(resultsLookup: Map[String, Map[String, Short]]) extends Scor
     val resultsForCandidate = resultsLookup(candidate)
     val numByResult = validGuesses.toSeq.map(
       resultsForCandidate(_)).groupBy(identity).values.map(_.size)
-    numByResult.map(c => c * Math.log(c)).sum / totalGuesses / log2
+    val possibleAnswerBias = if (validGuesses.contains(candidate)) 0.0001 else 0
+    numByResult.map(c => c * Math.log(c)).sum / totalGuesses / log2 - possibleAnswerBias
   }
 }

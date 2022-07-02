@@ -1,37 +1,20 @@
 package wordle
 
-import util.{Marker, WordPruner}
+import cats.effect.unsafe.implicits.global
+import cats.effect.{ExitCode, IO, IOApp}
+import io.WordlistReader
+import entropy.{EntropyScorer, ResultMapBuilder}
 
-import scala.io.Source
-import java.nio.file.Files
-import java.nio.file.Paths
+object WordleAutoApp extends IOApp {
+  override def run(args: List[String]): IO[ExitCode] = {
+    val out = for {
+      words <- WordlistReader.read()
+      resultsLookup <- ResultMapBuilder.resultMap(words.toList)
+    } yield (new EntropyScorer(resultsLookup), words)
+    val (scorer, words) = out.unsafeRunSync()
+    val guesser = new LoopingGuesser()
 
-object WordleAutoApp extends App {
-  val answer = args(0)
-
-  val wordsSource = 
-    if (Files.exists(Paths.get("wordlist"))) {
-      Source.fromFile("wordlist")
-    }
-    else {
-      println("wordlist not found in current directory, using built-in word list")
-      Source.fromResource("wordlist")
-    }
-  val words = wordsSource.getLines().toSet
-  wordsSource.close()
-
-  val guesser = new WordleGuesser(
-    words = words,
-    WordScorer.score,
-    WordPruner.pruneWords,
-    candidate => {
-      print("selecting candidate: ")
-      println(candidate)
-      candidate
-    },
-    resultCallback = guess => Marker.mark(guess, answer),
-)
-
-  val (numGuesses, _) = guesser.guess()
-  println(s"answer \"$answer\" found in $numGuesses guesses")
+    guesser.loop(words, scorer)
+    IO(ExitCode.Success)
+  }
 }

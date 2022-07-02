@@ -2,15 +2,15 @@ package wordle.io
 
 import cats.effect.IO
 
-import java.io.{FileOutputStream, ObjectOutputStream}
+import java.nio.file.{Files, Paths}
 
 object PrecalcResultsWriter {
+  val dir = "wordle-pre-calc"
   def write(word: String, bytes: Iterable[Array[Byte]]): IO[Unit] = {
     val allBytes = bytes.reduce((l, r) => l ++ r)
     IO {
-      val fos = new FileOutputStream(word)
-      fos.write(allBytes)
-      fos.close()
+      val path = Paths.get(dir, word)
+      Files.write(path, allBytes)
     }
   }
 }

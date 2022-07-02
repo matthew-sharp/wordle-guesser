@@ -27,6 +27,6 @@ object wordle extends App {
     Terminal.readResult,
   )
 
-  guesser.guess()
+  guesser.guess(true)
 
 }

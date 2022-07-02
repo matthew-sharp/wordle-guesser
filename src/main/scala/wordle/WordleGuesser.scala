@@ -1,6 +1,7 @@
 package wordle
 
 import model._
+import scala.collection.parallel.CollectionConverters._
 
 class WordleGuesser(
                      words: Set[String],
@@ -12,13 +13,14 @@ class WordleGuesser(
   private var currentlyValidWords: Set[String] = words
   private var cons: Seq[Constraint] = List[Constraint]()
 
-  def guess(): (Int, String) = {
+  def guess(playAdvanced: Boolean): (Int, String) = {
     var guessWord = ""
     var guessNum = 0
     do {
       guessNum += 1
       println(s"${currentlyValidWords.size} possible words")
-      val candidateWord = currentlyValidWords.minBy { candidate =>
+      val possibleGuesses = if (playAdvanced) currentlyValidWords else words
+      val candidateWord = possibleGuesses.par.minBy { candidate =>
           scorer.score(candidate, currentlyValidWords, guessNum)
       }
       guessWord = guessCallback(candidateWord)

@@ -1,10 +1,14 @@
 name := "wordle"
 
-version := "0.2.3"
+version := "0.3.0"
 
 scalaVersion := "2.13.8"
 
 enablePlugins(JavaAppPackaging)
+
+javaOptions in Universal ++= Seq(
+  "-J-Xmx16g"
+)
 
 mainClass in (Compile, run) := Some("wordle.wordle")
 

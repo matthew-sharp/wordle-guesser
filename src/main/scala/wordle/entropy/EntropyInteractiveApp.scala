@@ -17,7 +17,7 @@ object EntropyInteractiveApp extends IOApp {
         pruner = WordPruner.pruneWords,
         guessCallback = Terminal.readGuess,
         resultCallback = Terminal.readResult,
-      ).guess()
+      ).guess(false)
     } yield ExitCode.Success
   }
 }

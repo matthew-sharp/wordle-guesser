@@ -1,8 +1,6 @@
 package wordle.io
 
 import cats.effect.IO
-
-import java.io.FileInputStream
 import java.nio.file.{Files, Paths}
 
 object WordResultReader {
