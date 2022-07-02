@@ -9,6 +9,7 @@ class WordleGuesser(
                      pruner: Pruner,
                      guessCallback: String => String,
                      resultCallback: String => Seq[Constraint],
+                     answerWords: Option[Set[String]] = None,
                    ) {
   private var currentlyValidWords: Set[String] = words
   private var cons: Seq[Constraint] = List[Constraint]()
@@ -16,6 +17,10 @@ class WordleGuesser(
   def guess(playAdvanced: Boolean): (Int, String) = {
     var guessWord = ""
     var guessNum = 0
+    answerWords match {
+      case Some(aw) => currentlyValidWords = currentlyValidWords.intersect(aw)
+      case None =>
+    }
     do {
       guessNum += 1
       println(s"${currentlyValidWords.size} possible words")
