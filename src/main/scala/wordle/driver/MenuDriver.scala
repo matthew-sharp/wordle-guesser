@@ -29,7 +29,8 @@ class MenuDriver(
       val possibleGuesses = if (hardMode) currentlyValidWords else words
       val guessesByScore = possibleGuesses.par.map(g => (g, scorer.score(g, currentlyValidWords, guessNum))).seq.toMap
       val topWords = TopN(guessesByScore, 10)
-      val menu = topWords.map(w => (w, guessesByScore(w))).zipWithIndex
+      val menu = topWords.map(w => (
+        w, guessesByScore(w), if (currentlyValidWords.contains(w)) "" else "*")).zipWithIndex
       guessWord = Terminal.readGuessMenu(menu)
       cons = resultCallback(guessWord)
       currentlyValidWords = pruner.pruneWords(currentlyValidWords, cons)
