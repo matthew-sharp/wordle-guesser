@@ -1,9 +1,9 @@
 package wordle.util
 
-import wordle.model.Constraint
+import wordle.model.{Constraint, Pruner}
 
-object WordPrunerSafe {
-  def pruneWords(words: Set[String], constraints: List[Constraint]): Set[String] = {
+object WordPrunerSafe extends Pruner {
+  def pruneWords(words: Set[String], constraints: Seq[Constraint]): Set[String] = {
     val guess = constraints.map(_.c).mkString
     words.filter(Marker.mark(guess, _) == constraints)
   }

@@ -1,8 +1,8 @@
 package wordle.util
 
-import wordle.model.{Constraint, ConstraintType}
+import wordle.model.{Constraint, ConstraintType, Pruner}
 
-object WordPruner {
+object WordPruner extends Pruner {
   def pruneWords(words: Set[String], constraints: Seq[Constraint]): Set[String] = {
     val conCharsMin = constraints.filter(_.constraintType != ConstraintType.Absent).groupMapReduce(_.c)(_ => 1)(_ + _)
     val lettersOverUpperBound = constraints.filter(_.constraintType == ConstraintType.Absent).map(_.c).toSet
