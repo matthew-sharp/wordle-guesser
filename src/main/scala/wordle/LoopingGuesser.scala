@@ -26,7 +26,7 @@ class LoopingGuesser() {
         resultCallback = guess => Marker.mark(guess, answer),
         answerWords
       )
-      val (num, word) = wordGuesser.guess(false)
+      val (num, word) = wordGuesser.go(false)
       println(s"answer \"$word\" found in $num guesses")
       perfFile.write(s"$word,$num\n".getBytes())
     }

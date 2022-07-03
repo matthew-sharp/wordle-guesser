@@ -10,11 +10,11 @@ class WordleGuesser(
                      guessCallback: String => String,
                      resultCallback: String => Seq[Constraint],
                      answerWords: Option[Set[String]] = None,
-                   ) {
+                   ) extends Driver {
   private var currentlyValidWords: Set[String] = words
   private var cons: Seq[Constraint] = List[Constraint]()
 
-  def guess(playAdvanced: Boolean): (Int, String) = {
+  override def go(hardMode: Boolean): (Int, String) = {
     var guessWord = ""
     var guessNum = 0
     answerWords match {
@@ -24,7 +24,7 @@ class WordleGuesser(
     do {
       guessNum += 1
       println(s"${currentlyValidWords.size} possible words")
-      val possibleGuesses = if (playAdvanced) currentlyValidWords else words
+      val possibleGuesses = if (hardMode) currentlyValidWords else words
       val candidateWord = possibleGuesses.par.maxBy { candidate =>
           scorer.score(candidate, currentlyValidWords, guessNum)
       }

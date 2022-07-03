@@ -43,7 +43,7 @@ object EntropyInteractiveApp extends IOApp {
         guessCallback = guessCallback,
         resultCallback = Terminal.readResult,
         answerWords
-      ).guess(false)
+      ).go(false)
     } yield ExitCode.Success
   }
 }

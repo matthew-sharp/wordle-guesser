@@ -27,6 +27,6 @@ object LegacyInteractiveApp extends App {
     Terminal.readResult,
   )
 
-  guesser.guess(true)
+  guesser.go(true)
 
 }
