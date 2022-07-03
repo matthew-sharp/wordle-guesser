@@ -6,7 +6,7 @@ import java.nio.file.{Files, Paths}
 object WordResultReader {
   val dir = "wordle-pre-calc"
   def readWordResult(word: String): IO[Array[Byte]] = {
-    IO{
+    IO.blocking {
       val path = Paths.get(dir, word)
       Files.readAllBytes(path)
     }
