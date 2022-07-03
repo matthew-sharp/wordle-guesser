@@ -25,7 +25,7 @@ class WordleGuesser(
       guessNum += 1
       println(s"${currentlyValidWords.size} possible words")
       val possibleGuesses = if (playAdvanced) currentlyValidWords else words
-      val candidateWord = possibleGuesses.par.minBy { candidate =>
+      val candidateWord = possibleGuesses.par.maxBy { candidate =>
           scorer.score(candidate, currentlyValidWords, guessNum)
       }
       guessWord = guessCallback(candidateWord)

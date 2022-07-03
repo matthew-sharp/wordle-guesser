@@ -2,7 +2,7 @@ package wordle.entropy
 
 import cats.effect.{ExitCode, IO, IOApp}
 import wordle.WordleGuesser
-import wordle.io.{Terminal, WordlistReader}
+import wordle.io.{AnswerListReader, Terminal, WordlistReader}
 import wordle.util.WordPruner
 
 import scala.annotation.tailrec
@@ -17,7 +17,7 @@ object EntropyInteractiveApp extends IOApp {
     def parseArgs(parsed: Map[String, Any], remaining: List[String]): Map[String, Any] = {
       remaining match {
         case Nil => parsed
-        case "--ask-guess-word" | "-a" :: tail =>
+        case ("--ask-guess-word" | "-a") :: tail =>
           parseArgs(parsed ++ Map("ask-guess-word" -> true), tail)
         case unknown :: tail =>
           println(s"skipping unknown argument $unknown")
@@ -34,6 +34,7 @@ object EntropyInteractiveApp extends IOApp {
     for {
       words <- WordlistReader.read()
       resultsLookup <- ResultMapBuilder.resultMap(words.toList)
+      answerWords <- AnswerListReader.read()
       scorer = new EntropyScorer(resultsLookup)
       _ = new WordleGuesser(
         words = words,
@@ -41,6 +42,7 @@ object EntropyInteractiveApp extends IOApp {
         pruner = WordPruner.pruneWords,
         guessCallback = guessCallback,
         resultCallback = Terminal.readResult,
+        answerWords
       ).guess(false)
     } yield ExitCode.Success
   }
