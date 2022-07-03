@@ -4,6 +4,7 @@ version := "0.3.1"
 
 scalaVersion := "2.13.8"
 
+addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
 enablePlugins(JavaAppPackaging)
 
 javaOptions in Universal ++= Seq(
