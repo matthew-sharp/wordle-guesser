@@ -1,8 +1,9 @@
-package wordle.model
+package wordle.util
 
-import ResultUtils._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
+import wordle.model.{Constraint, ConstraintType}
+import wordle.util.ResultUtils._
 
 class ResultUtilsSpec extends AnyFlatSpec with should.Matchers {
   "ResultUtils.ternary" should "correctly handle a single green" in {

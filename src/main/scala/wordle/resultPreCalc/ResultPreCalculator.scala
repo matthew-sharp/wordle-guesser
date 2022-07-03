@@ -1,7 +1,6 @@
 package wordle.resultPreCalc
 
-import wordle.model.ResultUtils
-import wordle.util.Marker
+import wordle.util.{Marker, ResultUtils}
 
 object ResultPreCalculator {
   def wordToResultByteArray(word: String, words: Iterable[String]): Iterable[Array[Byte]] = {

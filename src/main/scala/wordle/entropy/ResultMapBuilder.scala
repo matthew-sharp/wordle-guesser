@@ -4,7 +4,7 @@ import cats.effect.IO
 import cats.instances.list._
 import cats.syntax.parallel._
 import wordle.io.WordResultReader
-import wordle.model.ResultUtils
+import wordle.util.ResultUtils
 
 object ResultMapBuilder {
   def wordResultMap(bytes: Array[Byte]): Map[String, Short] = {
