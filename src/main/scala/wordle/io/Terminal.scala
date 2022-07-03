@@ -11,6 +11,17 @@ object Terminal {
     if (input.isEmpty) candidate else input
   }
 
+  def readGuessMenu(menu: Seq[((String, Double), Int)]): String = {
+    println("10 best words:")
+    menu.foreach(i =>
+      println(s"${i._2}.\t${i._1._1}\t${i._1._2}")
+    )
+    print("selection?: ")
+    val input = readLine().toInt
+    val selectedItem = menu.find(i => i._2 == input).get
+    selectedItem._1._1
+  }
+
   def printGuess(candidate: String): String = {
     println(s"selecting candidate $candidate")
     candidate

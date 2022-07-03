@@ -2,6 +2,7 @@ package wordle.entropy
 
 import cats.effect.{ExitCode, IO, IOApp}
 import wordle.WordleGuesser
+import wordle.driver.MenuDriver
 import wordle.io.{AnswerListReader, Terminal, WordlistReader}
 import wordle.util.WordPruner
 
@@ -36,11 +37,10 @@ object EntropyInteractiveApp extends IOApp {
       resultsLookup <- ResultMapBuilder.resultMap(words.toList)
       answerWords <- AnswerListReader.read()
       scorer = new EntropyScorer(resultsLookup)
-      _ = new WordleGuesser(
+      _ = new MenuDriver(
         words = words,
         scorer = scorer,
         pruner = WordPruner.pruneWords,
-        guessCallback = guessCallback,
         resultCallback = Terminal.readResult,
         answerWords
       ).go(false)
