@@ -81,9 +81,12 @@ class ResultUtilsSpec extends AnyFlatSpec with should.Matchers {
       Constraint('y', ConstraintType.Exists),
     )
 
-    val res = toConstraints(toBytes(word, cons.map(_.constraintType)))
+    val res = toWordTernary(toBytes(word, cons.map(_.constraintType)))
+    res.size shouldEqual 1
+    val wordTernary = res.head
+    val resCons = toConstraints(wordTernary._2, wordTernary._1)
 
-    res.size shouldEqual 5
-    res should contain theSameElementsInOrderAs cons
+    wordTernary._1 shouldEqual word
+    resCons should contain theSameElementsInOrderAs cons
   }
 }

@@ -7,14 +7,8 @@ import wordle.io.WordResultReader
 import wordle.util.ResultUtils
 
 object ResultMapBuilder {
-  def wordResultMap(bytes: Array[Byte]): Map[String, Short] = {
-    bytes.grouped(7).map { wordBytes =>
-      ResultUtils.toWordTernary(wordBytes)
-    }.toMap
-  }
-
   def readWordResultMap(word: String): IO[Map[String, Short]] = {
-    WordResultReader.readWordResult(word).map(wordResultMap)
+    WordResultReader.readWordResult(word).map(ResultUtils.toWordTernary)
   }
 
   def resultMap(words: List[String]): IO[Map[String, Map[String, Short]]] = {

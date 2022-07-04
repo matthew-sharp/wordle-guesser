@@ -41,14 +41,20 @@ object ResultUtils {
     bb.array()
   }
 
-  def toWordTernary(bytes: Array[Byte]): (String, Short) = {
-    val word = new String(bytes.take(5), StandardCharsets.UTF_8)
-    val ternary = ByteBuffer.wrap(bytes.drop(5)).getShort
-    (word, ternary)
-  }
-
-  def toConstraints(bytes: Array[Byte]): List[Constraint] = {
-    val (word, ternary) = toWordTernary(bytes)
-    toConstraints(ternary, word)
+  def toWordTernary(bytes: Array[Byte]): Map[String, Short] = {
+    val bb = ByteBuffer.wrap(bytes)
+    Iterator.continually {
+      val remaining = bb.hasRemaining
+      if (remaining) {
+        val wordBytes = new Array[Byte](5)
+        bb.get(wordBytes)
+        val word = new String(wordBytes, StandardCharsets.UTF_8)
+        val ternary = bb.getShort
+        ((word, ternary), true)
+      }
+      else (("", 0.asInstanceOf[Short]), false)
+    }.takeWhile(x => x._2)
+      .map(_._1)
+      .toMap
   }
 }
