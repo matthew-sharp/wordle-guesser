@@ -2,7 +2,8 @@ package wordle.model
 
 sealed trait Cmd
 object Cmd {
-  case object Empty extends Cmd
+  case object Prompt extends Cmd
   final case class SetWordlist(filename: String) extends Cmd
-  final case object SetResultMap extends Cmd
+  case object SetResultMap extends Cmd
+  case object AdvanceSolver extends Cmd
 }

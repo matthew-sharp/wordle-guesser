@@ -19,6 +19,10 @@ object ResultUtils {
     }
   }
 
+  def toResultString(results: Seq[ConstraintType]): String = {
+    results.map(_.c).mkString
+  }
+
   def toConstraints(ternary: Short, word: String): List[Constraint] = {
     val trit = ternary % 3
     val conType = trit match {
