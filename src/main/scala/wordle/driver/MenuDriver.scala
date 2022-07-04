@@ -15,9 +15,9 @@ class MenuDriver(
   private var currentlyValidWords: Set[String] = words
   private var cons: Seq[Constraint] = List[Constraint]()
 
-  answerWords match {
-    case Some(aw) => currentlyValidWords = currentlyValidWords.intersect(aw)
-    case None =>
+  currentlyValidWords = answerWords match {
+    case Some(aw) => aw
+    case None => currentlyValidWords
   }
 
   override def go(hardMode: Boolean): (Int, String) = {

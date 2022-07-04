@@ -1,5 +1,5 @@
 package wordle.model
 
 trait Pruner {
-  def pruneWords(words: Set[String], constraints: Seq[Constraint]): Set[String]
+  def pruneWords(words: Iterable[String], constraints: Seq[Constraint]): Set[String]
 }
