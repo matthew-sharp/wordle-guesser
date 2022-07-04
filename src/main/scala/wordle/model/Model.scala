@@ -8,5 +8,7 @@ case class Model(
                 state: SolverState,
                 currentlyPossibleAnswers: Set[String],
                 guessNum: Int,
-
-                )
+                result: Seq[Constraint],
+                ) {
+  def isSolved: Boolean = result.forall(_.constraintType == ConstraintType.Position)
+}

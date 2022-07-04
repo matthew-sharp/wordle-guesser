@@ -31,6 +31,7 @@ object InteractiveApp extends IOApp {
       state = SolverState.Inactive,
       currentlyPossibleAnswers = Set.empty[String],
       guessNum = 0,
+      result = Seq.empty[Constraint]
     ), Cmd.SetWordlist("wordlist"))
   }
 
