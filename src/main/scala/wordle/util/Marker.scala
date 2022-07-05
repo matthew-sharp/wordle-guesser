@@ -3,12 +3,12 @@ package wordle.util
 import wordle.model.{Constraint, ConstraintType}
 
 object Marker {
-  def mark(guess: String, answer: String): Seq[Constraint] = {
+  def mark(guess: String, answer: String): List[Constraint] = {
     val constraints = markForConstraints(guess, answer)
-    guess.zip(constraints).map(tup => Constraint(tup._1, tup._2))
+    guess.zip(constraints).map(tup => Constraint(tup._1, tup._2)).toList
   }
 
-  def markForConstraints(guess: String, answer: String): Seq[ConstraintType] = {
+  def markForConstraints(guess: String, answer: String): List[ConstraintType] = {
     val countsInCorrectPosition = guess.zip(answer).foldLeft(Map[Char, Int]())(
       (acc, z) => z match {
         case (g, a) =>

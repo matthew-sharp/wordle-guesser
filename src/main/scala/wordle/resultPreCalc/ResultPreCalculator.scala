@@ -1,9 +1,10 @@
 package wordle.resultPreCalc
 
+import wordle.model.ResultTernary
 import wordle.util.{Marker, ResultUtils}
 
 object ResultPreCalculator {
-  def wordToResultByteArray(word: String, words: Iterable[String]): Iterable[Array[Byte]] = {
-    words.map(w => ResultUtils.toBytes(w, Marker.markForConstraints(word, w)))
+  def wordToResultByteArray(word: String, words: Seq[String]): Array[ResultTernary] = {
+    words.map(w => ResultUtils.toTernary(Marker.markForConstraints(word, w).toList)).toArray
   }
 }

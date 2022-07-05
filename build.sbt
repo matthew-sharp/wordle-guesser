@@ -2,20 +2,19 @@ name := "wordle"
 
 version := "0.3.1"
 
-scalaVersion := "2.13.8"
+scalaVersion := "3.1.3"
 
-addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
 enablePlugins(JavaAppPackaging)
 
-javaOptions in Universal ++= Seq(
-  "-J-Xmx16g"
+Universal / javaOptions ++= Seq(
+  "-J-Xmx12g"
 )
 
-mainClass in (Compile, run) := Some("wordle.wordle")
+Compile / run / mainClass  := Some("wordle.wordle")
 
 lazy val dependencies = new {
   val catsCore = "org.typelevel" %% "cats-core" % "2.7.0"
-  val catsEffect = "org.typelevel" %% "cats-effect" % "3.3.11"
+  val catsEffect = "org.typelevel" %% "cats-effect" % "3.3.12"
 }
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.11" % "test"

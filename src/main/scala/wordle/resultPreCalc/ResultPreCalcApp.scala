@@ -1,22 +1,31 @@
 package wordle.resultPreCalc
 
-import cats.effect.unsafe.implicits.global
-import cats.instances.list._
 import cats.syntax.parallel._
 import cats.effect.{ExitCode, IO, IOApp}
 import wordle.io.{PrecalcResultsWriter, WordlistReader}
 import wordle.resultPreCalc.ResultPreCalculator.wordToResultByteArray
+import wordle.util.WordUtils
+
+import java.nio.ByteBuffer
 
 object ResultPreCalcApp extends IOApp {
   override def run(args: List[String]): IO[ExitCode] = {
-    val words = WordlistReader.read()
-    val write = words.flatMap(ws => ws.toList.parTraverse(w => writeWordFile(w, ws)))
-    write.unsafeRunSync()
-    IO(ExitCode.Success)
+    for {
+      words <- WordlistReader.read()
+      wordsLength = words.size
+      lookup = WordUtils.inverseWordMap(words)
+      _ <- PrecalcResultsWriter.mappedByteBuffer(wordsLength * wordsLength).use {
+        bb =>
+          words.parTraverse(w => {
+            val offset = wordsLength * lookup(w)
+            writeWordResults(w, words, bb.slice(offset, wordsLength))
+          })
+      }
+    } yield ExitCode.Success
   }
 
-  def writeWordFile(word: String, words: Iterable[String]): IO[Unit] = {
+  private def writeWordResults(word: String, words: Seq[String], buffer: ByteBuffer): IO[Unit] = {
     val bytes = wordToResultByteArray(word, words)
-    PrecalcResultsWriter.write(word, bytes)
+    IO.blocking(buffer.put(bytes))
   }
 }

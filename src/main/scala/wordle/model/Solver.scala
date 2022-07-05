@@ -12,4 +12,6 @@ trait Solver {
   def mark(model: Model): Model
 
   def prune(model: Model): Model
+  
+  def solved(model: Model): String
 }

@@ -1,16 +1,18 @@
 package wordle.io
 
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 
-import java.nio.file.{Files, Paths}
+import java.io.RandomAccessFile
+import java.nio.ByteBuffer
+import java.nio.channels.FileChannel.MapMode
+import java.nio.file.Paths
 
 object PrecalcResultsWriter {
   val dir = "wordle-pre-calc"
-  def write(word: String, bytes: Iterable[Array[Byte]]): IO[Unit] = {
-    val allBytes = bytes.reduce((l, r) => l ++ r)
-    IO {
-      val path = Paths.get(dir, word)
-      Files.write(path, allBytes)
-    }
+
+  def mappedByteBuffer(size: Int): Resource[IO, ByteBuffer] = {
+    val path = Paths.get(dir, "results")
+    val file = Resource.fromAutoCloseable(IO.blocking(new RandomAccessFile(path.toFile, "rw")))
+    file.map(_.getChannel.map(MapMode.READ_WRITE, 0, size))
   }
 }

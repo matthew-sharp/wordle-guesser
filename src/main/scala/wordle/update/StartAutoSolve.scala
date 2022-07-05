@@ -1,34 +1,25 @@
 package wordle.update
 
-import wordle.WordleGuesser
 import wordle.auto.AutoSolver
 import wordle.entropy.EntropyScorer
 import wordle.model._
-import wordle.util.{Marker, WordPruner}
+import wordle.util.LookupPruner
+import scala.collection.immutable.BitSet
 
 object StartAutoSolve {
   def apply(model: Model, word: String): (Model, Cmd) = {
-    /*
-    val driver = new WordleGuesser(
-      words = model.wordlist,
-      scorer = new EntropyScorer(model.resultMap),
-      pruner = WordPruner,
-      guessCallback = identity,
-      resultCallback = guess => Marker.mark(guess, word),
-    )
-    driver
-     */
     val solver = AutoSolver(
-      answer = word,
-      scorer = new EntropyScorer(model.resultMap),
+      answer = model.resultsCache.reverseWordMapping(word),
+      scorer = new EntropyScorer(model.resultsCache),
+      pruner = LookupPruner(model.resultsCache),
     )
     val newModel = model.copy(
-      outputMsg = solver.preStats(model),
       solver = solver,
-      state = SolverState.PreStats,
-      currentlyPossibleAnswers = model.wordlist,
+      state = SolverState.Inactive,
+      currentlyPossibleAnswers = BitSet.fromSpecific(model.resultsCache.wordMapping.indices),
       guessNum = 1,
     )
-    (newModel, Cmd.AdvanceSolver)
+    val modelWithPreStats = newModel.copy(outputMsg = solver.preStats(newModel))
+    (modelWithPreStats, Cmd.AdvanceSolver)
   }
 }

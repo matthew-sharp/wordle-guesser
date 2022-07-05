@@ -1,15 +1,15 @@
 package wordle.auto
 
-import wordle.model._
-import wordle.util.{Marker, ResultUtils, WordPruner}
+import wordle.model.*
+import wordle.util.{LookupMarker, Marker, ResultUtils, WordPruner}
 
-import scala.collection.parallel.CollectionConverters._
+import scala.collection.parallel.CollectionConverters.*
 
 case class AutoSolver(
-                     answer: String,
+                     answer: Word,
                        scorer: Scorer,
                      pruner: Pruner,
-                 candidateWord: String,
+                 candidateWord: Word,
                 ) extends Solver {
   override val guessCmd: Cmd = Cmd.AdvanceSolver
   override val markCmd: Cmd = Cmd.AdvanceSolver
@@ -19,32 +19,49 @@ case class AutoSolver(
   }
 
   override def prepGuesses(model: Model): Model = {
-    val candidateWord = model.currentlyPossibleAnswers.par.maxBy { candidate =>
-      scorer.score(candidate, model.currentlyPossibleAnswers, model.guessNum)
+    val candidateWord = model.resultsCache.wordMapping.indices.par.maxBy { candidate =>
+      scorer.score(candidate.toShort, model.currentlyPossibleAnswers, model.guessNum)
     }
     val newSolver = this.copy(candidateWord = candidateWord)
+    val candidateString = model.resultsCache.wordMapping(candidateWord)
+    val annotation = if model.currentlyPossibleAnswers.contains(candidateWord) then "" else "*"
     model.copy(
-      outputMsg = s"selecting guess: \"$candidateWord\"",
+      outputMsg = s"selecting guess: \"$candidateString\"${annotation}",
       state = SolverState.SelectingGuess,
       solver = newSolver)
   }
 
   override def mark(model: Model): Model = {
-    val cons = Marker.mark(candidateWord, answer)
+    val cons = LookupMarker.mark(model.resultsCache)(candidateWord, answer)
     model.copy(
-      outputMsg = s"Result: ${ResultUtils.toResultString(cons.map(_.constraintType))}",
+      outputMsg = s"result: ${ResultUtils.toResultString(cons.map(_.constraintType))}",
       result = cons,
       state = SolverState.Marked,
     )
   }
 
   override def prune(model: Model): Model = {
-    model.copy(currentlyPossibleAnswers = pruner.pruneWords(model.currentlyPossibleAnswers, model.result))
+    model.copy(
+      outputMsg = preStats(model),
+      state = SolverState.PreStats,
+      guessNum = model.guessNum + 1,
+      currentlyPossibleAnswers = pruner.pruneWords(
+      model.currentlyPossibleAnswers,
+        ResultUtils.toTernary(model.result),
+      candidateWord)
+    )
   }
+
+  override def solved(model: Model): String = {
+    s"answer \"${answerString(model)}\" found in ${model.guessNum} guesses"
+  }
+
+  def answerString(model: Model): String = model.resultsCache.wordMapping(answer)
 }
 
 object AutoSolver {
-  def apply(answer: String,
-            scorer: Scorer): AutoSolver =
-    new AutoSolver(answer, scorer, WordPruner, "")
+  def apply(answer: Word,
+            scorer: Scorer,
+            pruner: Pruner): AutoSolver =
+    new AutoSolver(answer, scorer, pruner, -1)
 }

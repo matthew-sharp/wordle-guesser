@@ -11,4 +11,11 @@ object WordResultReader {
       Files.readAllBytes(path)
     }
   }
+  
+  def readResultCache: IO[Array[Byte]] = {
+    IO.blocking {
+      val path = Paths.get(dir, "results")
+      Files.readAllBytes(path)
+    }
+  }
 }

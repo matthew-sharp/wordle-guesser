@@ -1,5 +1,7 @@
 package wordle.model
 
+import scala.collection.immutable.BitSet
+
 trait Pruner {
-  def pruneWords(words: Iterable[String], constraints: Seq[Constraint]): Set[String]
+  def pruneWords(words: BitSet, constraints: ResultTernary, guess: Word): BitSet
 }

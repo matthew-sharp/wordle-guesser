@@ -1,22 +1,23 @@
 package wordle
 
-import entropy.ResultMapBuilder
+import entropy.ResultCacheBuilder
 import io.WordlistReader
-import model._
-import update._
+import model.*
+import update.*
 import cats.data.StateT
-import cats.effect._
-import cats.implicits._
+import cats.effect.*
+import cats.implicits.*
 
+import scala.collection.immutable.BitSet
 import scala.util.{Success, Try}
 
 object InteractiveApp extends IOApp {
   case object Quit extends Msg
   final case class Invalid(unknown: String) extends Msg
   final case class SetWordlist(filename: String) extends Msg
-  final case class SetWordlistResult(result: Try[Set[String]]) extends Msg
-  final case class SetResultMap(result: Try[Map[String, Map[String, Short]]]) extends Msg
-  final case object AdvanceSolver extends Msg
+  final case class SetWordlistResult(result: Try[IndexedSeq[String]]) extends Msg
+  final case class SetResultMap(result: Try[CachedResults]) extends Msg
+  case object AdvanceSolver extends Msg
   final case class AutoSolve(answer: String) extends Msg
   case object InteractiveSolve extends Msg
 
@@ -25,13 +26,12 @@ object InteractiveApp extends IOApp {
   def init(): (Model, Cmd) = {
     (Model(
       outputMsg = "",
-      wordlist = Set.empty[String],
-      resultMap = Map.empty[String, Map[String, Short]],
+      resultsCache = null,
       solver = null,
       state = SolverState.Inactive,
-      currentlyPossibleAnswers = Set.empty[String],
+      currentlyPossibleAnswers = BitSet(),
       guessNum = 0,
-      result = Seq.empty[Constraint]
+      result = List.empty[Constraint]
     ), Cmd.SetWordlist("wordlist"))
   }
 
@@ -55,7 +55,7 @@ object InteractiveApp extends IOApp {
       case SetWordlistResult(words) => UpdateWordlist(model, words.get)
       case SetResultMap(result) => (model.copy(
         outputMsg = "Precalculated results read",
-        resultMap = result.get,
+        resultsCache = result.get,
       ), Cmd.Prompt)
       case AdvanceSolver => AdvanceSolverUpd(model)
       case AutoSolve(answer) => StartAutoSolve(model, answer)
@@ -65,10 +65,10 @@ object InteractiveApp extends IOApp {
     val cmdIo = cmd match {
       case Cmd.Prompt => IO.print("> ") >> IO.readLine.map(parse)
       case Cmd.AdvanceSolver => IO(AdvanceSolver)
-      case Cmd.SetWordlist(filename) => WordlistReader.read(filename).map(ws => SetWordlistResult(Success(ws)))
-      case Cmd.SetResultMap => ResultMapBuilder.resultMap(model.wordlist.toList).map(r => SetResultMap(Success(r)))
+      case Cmd.SetWordlist(filename) => WordlistReader.read(filename).map(ws => SetWordlistResult(Success(ws.toIndexedSeq)))
+      case Cmd.SetResultMap => ResultCacheBuilder.resultLookup(model.resultsCache.wordMapping).map(r => SetResultMap(Success(r)))
     }
-    IO.println(model.outputMsg) >> cmdIo
+    (if (model.outputMsg.isEmpty) IO.unit else IO.println(model.outputMsg)) >> cmdIo
   }
 
   override def run(args: List[String]): IO[ExitCode] = {
@@ -80,10 +80,9 @@ object InteractiveApp extends IOApp {
           ((updatedModel, newCmd), msg)
         }
     }
-    val finalModel = for {
-      ((model, _), msg) <- app.iterateUntil(quit).run((initialModel, initialCmd))
-    } yield update(msg, model)._1
-
+    val finalModel = app.iterateUntil(quit).run((initialModel, initialCmd)).map(
+      _ match { case ((model, _), msg) => update(msg, model)._1 }
+    )
     finalModel.map(_ => ExitCode.Success)
   }
 }

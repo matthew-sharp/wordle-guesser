@@ -70,23 +70,4 @@ class ResultUtilsSpec extends AnyFlatSpec with should.Matchers {
     res.size shouldEqual 5
     res should contain theSameElementsInOrderAs cons
   }
-
-  "ResultUtils.bytes" should "correctly handle a 5 letter word" in {
-    val word = "array"
-    val cons = List(
-      Constraint('a', ConstraintType.Exists),
-      Constraint('r', ConstraintType.Position),
-      Constraint('r', ConstraintType.Absent),
-      Constraint('a', ConstraintType.Position),
-      Constraint('y', ConstraintType.Exists),
-    )
-
-    val res = toWordTernary(toBytes(word, cons.map(_.constraintType)))
-    res.size shouldEqual 1
-    val wordTernary = res.head
-    val resCons = toConstraints(wordTernary._2, wordTernary._1)
-
-    wordTernary._1 shouldEqual word
-    resCons should contain theSameElementsInOrderAs cons
-  }
 }

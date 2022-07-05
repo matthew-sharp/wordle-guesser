@@ -1,14 +1,15 @@
 package wordle.model
 
+import scala.collection.immutable.BitSet 
+
 case class Model(
                 outputMsg: String,
-                wordlist: Set[String],
-                resultMap: Map[String, Map[String, Short]],
+                resultsCache: CachedResults,
                 solver: Solver,
                 state: SolverState,
-                currentlyPossibleAnswers: Set[String],
+                currentlyPossibleAnswers: BitSet,
                 guessNum: Int,
-                result: Seq[Constraint],
+                result: List[Constraint],
                 ) {
   def isSolved: Boolean = result.forall(_.constraintType == ConstraintType.Position)
 }
