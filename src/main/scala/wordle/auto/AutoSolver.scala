@@ -34,7 +34,7 @@ case class AutoSolver(
   override def mark(model: Model): Model = {
     val cons = LookupMarker.mark(model.resultsCache)(candidateWord, answer)
     model.copy(
-      outputMsg = s"result: ${ResultUtils.toResultString(cons.map(_.constraintType))}",
+      outputMsg = s"result:           ${ResultUtils.toResultString(cons.map(_.constraintType))}",
       result = cons,
       state = SolverState.Marked,
     )
@@ -42,7 +42,6 @@ case class AutoSolver(
 
   override def prune(model: Model): Model = {
     model.copy(
-      outputMsg = preStats(model),
       state = SolverState.PreStats,
       guessNum = model.guessNum + 1,
       currentlyPossibleAnswers = pruner.pruneWords(

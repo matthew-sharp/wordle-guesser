@@ -19,7 +19,6 @@ object StartAutoSolve {
       currentlyPossibleAnswers = BitSet.fromSpecific(model.resultsCache.wordMapping.indices),
       guessNum = 1,
     )
-    val modelWithPreStats = newModel.copy(outputMsg = solver.preStats(newModel))
-    (modelWithPreStats, Cmd.AdvanceSolver)
+    (newModel, Cmd.AdvanceSolver)
   }
 }
