@@ -6,16 +6,11 @@ import wordle.util.{LookupMarker, Marker, ResultUtils, WordPruner}
 import scala.collection.parallel.CollectionConverters.*
 
 case class AutoSolver(
-                     answer: Word,
+                       answer: Word,
                        scorer: Scorer,
-                     pruner: Pruner,
-                 candidateWord: Word,
-                ) extends Solver(Cmd.AdvanceSolver, Cmd.AdvanceSolver) {
-
-  override def preStats(model: Model): String = {
-    s"${model.currentlyPossibleAnswers.size} possible words remaining"
-  }
-
+                       pruner: Pruner,
+                       candidateWord: Word,
+                     ) extends Solver() {
   override def prepGuesses(model: Model): Model = {
     val candidateWord = model.resultsCache.wordMapping.indices.par.maxBy { candidate =>
       scorer.score(candidate.toShort, model.currentlyPossibleAnswers, model.guessNum)
@@ -25,7 +20,6 @@ case class AutoSolver(
     val annotation = if model.currentlyPossibleAnswers.contains(candidateWord) then "" else "*"
     model.copy(
       outputMsg = s"selecting guess: \"$candidateString\"$annotation",
-      state = SolverState.SelectingGuess,
       solver = newSolver)
   }
 

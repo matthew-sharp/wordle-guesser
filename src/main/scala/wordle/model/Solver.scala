@@ -1,7 +1,12 @@
 package wordle.model
 
-trait Solver(val guessCmd: Cmd, val markCmd: Cmd) {
-  def preStats(model: Model): String
+trait Solver() {
+  def guessCmd: Cmd = Cmd.AdvanceSolver
+  def markCmd: Cmd = Cmd.AdvanceSolver
+  
+  def preStats(model: Model): String = {
+    s"${model.currentlyPossibleAnswers.size} possible words remaining"
+  }
 
   def prepGuesses(model: Model): Model
 

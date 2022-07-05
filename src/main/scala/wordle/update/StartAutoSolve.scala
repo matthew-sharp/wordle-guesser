@@ -10,12 +10,11 @@ object StartAutoSolve {
   def apply(model: Model, word: String): (Model, Cmd) = {
     val solver = AutoSolver(
       answer = model.resultsCache.reverseWordMapping(word),
-      scorer = new EntropyScorer(model.resultsCache),
+      scorer = EntropyScorer(model.resultsCache),
       pruner = LookupPruner(model.resultsCache),
     )
     val newModel = model.copy(
       solver = solver,
-      state = SolverState.Inactive,
       currentlyPossibleAnswers = BitSet.fromSpecific(model.resultsCache.wordMapping.indices),
       guessNum = 1,
     )

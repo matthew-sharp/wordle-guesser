@@ -10,7 +10,7 @@ Universal / javaOptions ++= Seq(
   "-J-Xmx12g"
 )
 
-Compile / run / mainClass  := Some("wordle.wordle")
+Compile / run / mainClass  := Some("wordle.InteractiveApp")
 
 lazy val dependencies = new {
   val catsCore = "org.typelevel" %% "cats-core" % "2.7.0"

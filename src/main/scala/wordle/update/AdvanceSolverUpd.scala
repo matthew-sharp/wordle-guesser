@@ -9,7 +9,8 @@ object AdvanceSolverUpd {
       case SolverState.Inactive => (model.copy(
         outputMsg = solver.preStats(model),
         state = SolverState.PreStats), Cmd.AdvanceSolver)
-      case SolverState.PreStats => (solver.prepGuesses(model), Cmd.AdvanceSolver)
+      case SolverState.PreStats =>
+        (solver.prepGuesses(model).copy(state = SolverState.SelectingGuess), Cmd.AdvanceSolver)
       case SolverState.SelectingGuess => (model.copy(state = SolverState.NeedsMarking), solver.guessCmd)
       case SolverState.NeedsMarking => (solver.mark(model), solver.markCmd)
       case SolverState.Marked => if (model.isSolved)

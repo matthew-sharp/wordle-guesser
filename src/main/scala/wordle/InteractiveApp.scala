@@ -80,9 +80,10 @@ object InteractiveApp extends IOApp {
           ((updatedModel, newCmd), msg)
         }
     }
-    val finalModel = app.iterateUntil(quit).run((initialModel, initialCmd)).map(
-      _ match { case ((model, _), msg) => update(msg, model)._1 }
-    )
+    val finalModel = app
+      .iterateUntil(quit)
+      .run((initialModel, initialCmd))
+      .map { case ((model, _), msg) => update(msg, model)._1 }
     finalModel.map(_ => ExitCode.Success)
   }
 }
