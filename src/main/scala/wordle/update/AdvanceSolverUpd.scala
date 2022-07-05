@@ -10,9 +10,11 @@ object AdvanceSolverUpd {
         outputMsg = solver.preStats(model),
         state = SolverState.PreStats), Cmd.AdvanceSolver)
       case SolverState.PreStats =>
-        (solver.prepGuesses(model).copy(state = SolverState.SelectingGuess), Cmd.AdvanceSolver)
-      case SolverState.SelectingGuess => (model.copy(state = SolverState.NeedsMarking), solver.guessCmd)
-      case SolverState.NeedsMarking => (solver.mark(model), solver.markCmd)
+        val mdl = model.copy(state = SolverState.NeedsMarking)
+        solver.prepGuesses(mdl)
+      case SolverState.NeedsMarking => 
+        val mdl = model.copy(state = SolverState.Marked)
+        solver.mark(mdl)
       case SolverState.Marked => if (model.isSolved)
         (model.copy(state = SolverState.Solved), Cmd.AdvanceSolver)
       else

@@ -1,7 +1,7 @@
 package wordle
 
 import entropy.ResultCacheBuilder
-import io.WordlistReader
+import io.{Terminal, WordlistReader}
 import model.*
 import update.*
 import cats.data.StateT
@@ -20,6 +20,7 @@ object InteractiveApp extends IOApp {
   case object AdvanceSolver extends Msg
   final case class AutoSolve(answer: String) extends Msg
   case object InteractiveSolve extends Msg
+  final case class SetGuess(g: Word) extends Msg
 
   def quit(msg: Msg): Boolean = msg == Quit
 
@@ -29,6 +30,7 @@ object InteractiveApp extends IOApp {
       resultsCache = null,
       solver = null,
       state = SolverState.Inactive,
+      currentGuess = -1,
       currentlyPossibleAnswers = BitSet(),
       guessNum = 0,
       result = List.empty[Constraint]
@@ -59,6 +61,9 @@ object InteractiveApp extends IOApp {
       ), Cmd.Prompt)
       case AdvanceSolver => AdvanceSolverUpd(model)
       case AutoSolve(answer) => StartAutoSolve(model, answer)
+      case InteractiveSolve => StartInteractiveSolve(model)
+      case SetGuess(g) => (model.copy(currentGuess = g), Cmd.AdvanceSolver)
+      case Msg.SetResult(r) => (model.copy(result = r), Cmd.AdvanceSolver)
     }
 
   def io(model: Model, cmd: Cmd): IO[Msg] = {
@@ -67,6 +72,11 @@ object InteractiveApp extends IOApp {
       case Cmd.AdvanceSolver => IO(AdvanceSolver)
       case Cmd.SetWordlist(filename) => WordlistReader.read(filename).map(ws => SetWordlistResult(Success(ws.toIndexedSeq)))
       case Cmd.SetResultMap => ResultCacheBuilder.resultLookup(model.resultsCache.wordMapping).map(r => SetResultMap(Success(r)))
+      case Cmd.AskGuessMenu(selections) => for {
+        input <- IO.readLine
+        word = selections(input)
+      } yield SetGuess(word)
+      case Cmd.AskResult => Terminal.askResult(model)
     }
     (if (model.outputMsg.isEmpty) IO.unit else IO.println(model.outputMsg)) >> cmdIo
   }

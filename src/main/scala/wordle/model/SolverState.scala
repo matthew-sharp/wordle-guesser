@@ -7,8 +7,6 @@ object SolverState {
 
   case object PreStats extends SolverState
 
-  case object SelectingGuess extends SolverState
-
   case object NeedsMarking extends SolverState
 
   case object Marked extends SolverState

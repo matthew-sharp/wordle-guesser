@@ -7,6 +7,7 @@ case class Model(
                 resultsCache: CachedResults,
                 solver: Solver,
                 state: SolverState,
+                currentGuess: Word,
                 currentlyPossibleAnswers: BitSet,
                 guessNum: Int,
                 result: List[Constraint],

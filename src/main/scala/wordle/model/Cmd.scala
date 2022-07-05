@@ -6,4 +6,6 @@ object Cmd {
   final case class SetWordlist(filename: String) extends Cmd
   case object SetResultMap extends Cmd
   case object AdvanceSolver extends Cmd
+  final case class AskGuessMenu(choices: Map[String, Word]) extends Cmd
+  case object AskResult extends Cmd
 }
