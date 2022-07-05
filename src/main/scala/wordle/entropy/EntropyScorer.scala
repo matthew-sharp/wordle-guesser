@@ -4,14 +4,14 @@ import wordle.model.{CachedResults, Scorer, Word}
 
 import scala.collection.immutable.BitSet
 
-class EntropyScorer(resultsCache: CachedResults) extends Scorer {
+case class EntropyScorer(resultsCache: CachedResults) extends Scorer {
   def memoizedLog: Int => Double = {
     val cache = collection.mutable.Map.empty[Int, Double]
 
     num => cache.getOrElseUpdate(num, Math.log(num))
   }
   private val log2 = memoizedLog(2)
-  val totalWordCount = resultsCache.wordMapping.size
+  private val totalWordCount = resultsCache.wordMapping.size
 
   def score(candidate: Word, validAnswers: BitSet, guessNum: Int): Double = {
     val totalGuesses = validAnswers.size
