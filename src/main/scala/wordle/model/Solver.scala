@@ -1,13 +1,9 @@
 package wordle.model
 
-trait Solver {
+trait Solver(val guessCmd: Cmd, val markCmd: Cmd) {
   def preStats(model: Model): String
 
   def prepGuesses(model: Model): Model
-
-  val guessCmd: Cmd
-
-  val markCmd: Cmd
 
   def mark(model: Model): Model
 

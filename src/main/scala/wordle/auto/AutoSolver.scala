@@ -10,11 +10,9 @@ case class AutoSolver(
                        scorer: Scorer,
                      pruner: Pruner,
                  candidateWord: Word,
-                ) extends Solver {
-  override val guessCmd: Cmd = Cmd.AdvanceSolver
-  override val markCmd: Cmd = Cmd.AdvanceSolver
+                ) extends Solver(Cmd.AdvanceSolver, Cmd.AdvanceSolver) {
 
-  def preStats(model: Model): String = {
+  override def preStats(model: Model): String = {
     s"${model.currentlyPossibleAnswers.size} possible words remaining"
   }
 
@@ -26,7 +24,7 @@ case class AutoSolver(
     val candidateString = model.resultsCache.wordMapping(candidateWord)
     val annotation = if model.currentlyPossibleAnswers.contains(candidateWord) then "" else "*"
     model.copy(
-      outputMsg = s"selecting guess: \"$candidateString\"${annotation}",
+      outputMsg = s"selecting guess: \"$candidateString\"$annotation",
       state = SolverState.SelectingGuess,
       solver = newSolver)
   }
@@ -55,7 +53,7 @@ case class AutoSolver(
     s"answer \"${answerString(model)}\" found in ${model.guessNum} guesses"
   }
 
-  def answerString(model: Model): String = model.resultsCache.wordMapping(answer)
+  inline def answerString(model: Model): String = model.resultsCache.wordMapping(answer)
 }
 
 object AutoSolver {
