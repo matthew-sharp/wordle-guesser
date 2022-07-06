@@ -20,3 +20,26 @@ lazy val dependencies = new {
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.11" % "test"
 libraryDependencies += "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4"
 libraryDependencies ++= Seq(dependencies.catsCore, dependencies.catsEffect)
+
+scalacOptions ++= Seq(
+  "-Xfatal-warnings",
+
+  // Linting options
+  "-unchecked",
+  "-deprecation",
+)
+
+val filterConsoleScalacOptions = { options: Seq[String] =>
+  options.filterNot(Set(
+    "-Xfatal-warnings",
+    "-Werror",
+    "-Wdead-code",
+    "-Wunused:imports",
+    "-Ywarn-unused:imports",
+    "-Ywarn-unused-import",
+    "-Ywarn-dead-code",
+  ))
+}
+
+Compile / console / scalacOptions ~= filterConsoleScalacOptions
+Test / console / scalacOptions ~= filterConsoleScalacOptions
