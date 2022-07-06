@@ -26,7 +26,7 @@ object ResultUtils {
   }
 
   inline def toResultString(results: Seq[ConstraintType]): String = {
-    results.map(_.c).mkString
+    results.map(_.str).mkString + "\u001b[0m"
   }
 
   def toConstraints(ternary: ResultTernary, word: String): List[Constraint] = {
