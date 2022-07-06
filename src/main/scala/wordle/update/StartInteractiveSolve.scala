@@ -12,10 +12,6 @@ object StartInteractiveSolve {
   def apply(model: Model): (Model, Cmd) = {
     val scorer = EntropyScorer(model.resultsCache)
     val solver = InteractiveSolver(scorer = scorer, pruner = LookupPruner(model.resultsCache))
-    val newModel = model.copy(
-      solver = solver,
-      currentlyPossibleAnswers = BitSet.fromSpecific(model.resultsCache.wordMapping.indices),
-      guessNum = 1)
-    (newModel, Cmd.AdvanceSolver)
+    StartSolveCommon(model, solver)
   }
 }

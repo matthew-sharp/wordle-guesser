@@ -9,17 +9,12 @@ import wordle.util.LookupPruner
 import scala.collection.immutable.BitSet
 
 object StartAutoSolve {
-  def apply(model: Model, word: String): (Model, Cmd) = {
+  def apply(model: Model, answer: String): (Model, Cmd) = {
     val solver = AutoSolver(
-      answer = model.resultsCache.reverseWordMapping(word),
+      answer = model.resultsCache.reverseWordMapping(answer),
       scorer = EntropyScorer(model.resultsCache),
       pruner = LookupPruner(model.resultsCache),
     )
-    val newModel = model.copy(
-      solver = solver,
-      currentlyPossibleAnswers = BitSet.fromSpecific(model.resultsCache.wordMapping.indices),
-      guessNum = 1,
-    )
-    (newModel, Cmd.AdvanceSolver)
+    StartSolveCommon(model, solver)
   }
 }
