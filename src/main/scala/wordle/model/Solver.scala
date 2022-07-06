@@ -1,5 +1,6 @@
 package wordle.model
 
+import wordle.Cmd
 import wordle.util.ResultUtils
 
 trait Solver(pruner: Pruner) {

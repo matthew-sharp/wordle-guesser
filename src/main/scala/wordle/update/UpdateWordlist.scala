@@ -1,7 +1,8 @@
 package wordle.update
 
+import wordle.Cmd
 import wordle.model._
-import wordle.model.{CachedResults, Cmd, Model, ResultTernary}
+import wordle.model.{CachedResults, Model, ResultTernary}
 
 object UpdateWordlist {
   def apply(model: Model, words: IndexedSeq[String]): (Model, Cmd) = {

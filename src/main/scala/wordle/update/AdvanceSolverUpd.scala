@@ -1,6 +1,7 @@
 package wordle.update
 
-import wordle.model.{Cmd, Model, SolverState}
+import wordle.Cmd
+import wordle.model.{Model, SolverState}
 
 object AdvanceSolverUpd {
   def apply(model: Model): (Model, Cmd) = {

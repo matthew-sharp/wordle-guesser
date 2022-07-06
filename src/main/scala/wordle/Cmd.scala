@@ -1,4 +1,6 @@
-package wordle.model
+package wordle
+
+import wordle.model.Word
 
 sealed trait Cmd
 object Cmd {

@@ -1,8 +1,9 @@
 package wordle.update
 
+import wordle.Cmd
 import wordle.entropy.EntropyScorer
 import wordle.interactive.InteractiveSolver
-import wordle.model.{Cmd, Model}
+import wordle.model.Model
 import wordle.util.LookupPruner
 
 import scala.collection.immutable.BitSet

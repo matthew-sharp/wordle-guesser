@@ -1,9 +1,11 @@
 package wordle.update
 
+import wordle.Cmd
 import wordle.auto.AutoSolver
 import wordle.entropy.EntropyScorer
-import wordle.model._
+import wordle.model.*
 import wordle.util.LookupPruner
+
 import scala.collection.immutable.BitSet
 
 object StartAutoSolve {

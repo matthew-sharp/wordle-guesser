@@ -1,7 +1,8 @@
 package wordle.io
 
 import cats.effect.IO
-import wordle.model.{Constraint, ConstraintType, Model, Msg}
+import wordle.Msg
+import wordle.model.{Constraint, ConstraintType, Model}
 
 import scala.io.StdIn.readLine
 

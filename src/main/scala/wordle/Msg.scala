@@ -1,4 +1,6 @@
-package wordle.model
+package wordle
+
+import wordle.model.Constraint
 
 trait Msg
 

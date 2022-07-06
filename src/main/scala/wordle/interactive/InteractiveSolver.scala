@@ -1,5 +1,6 @@
 package wordle.interactive
 
+import wordle.Cmd
 import wordle.model.*
 import wordle.util.TopN
 

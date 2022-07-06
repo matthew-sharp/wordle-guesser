@@ -1,5 +1,6 @@
 package wordle.auto
 
+import wordle.Cmd
 import wordle.model.*
 import wordle.util.{LookupMarker, Marker, ResultUtils, WordPruner}
 
