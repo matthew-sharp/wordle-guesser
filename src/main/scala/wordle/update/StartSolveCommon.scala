@@ -9,7 +9,9 @@ object StartSolveCommon {
   def apply(model: Model, solver: Solver): (Model, Cmd) = {
     (model.copy(
       solver = solver,
-      currentlyPossibleAnswers = BitSet.fromSpecific(model.resultsCache.wordMapping.indices),
+      currentlyPossibleAnswers = model.validAnswers match {
+        case Some(a) => a
+        case None => BitSet.fromSpecific(model.resultsCache.wordMapping.indices)},
       guessNum = 1), Cmd.AdvanceSolver)
   }
 }

@@ -1,19 +1,16 @@
 package wordle.io
 
-import cats.effect.IO
+import cats.effect.{IO, Resource}
+import cats.implicits._
 
 import java.nio.file.{Files, Paths}
 import scala.io.Source
 
 object AnswerListReader {
-  def read(): IO[Option[Set[String]]] = {
-    IO {
-        if (Files.exists(Paths.get("answer-list"))) {
-          val source = Source.fromFile("answer-list")
-          val words = source.getLines().toSet
-          source.close()
-          Some(words)
-        } else None
-    }
+  def read(filename: String = "answer-list"): IO[Seq[String]] = {
+    val file = Resource.fromAutoCloseable(IO.blocking(Source.fromFile(filename)))
+    file.use ( source =>
+      IO(source.getLines().toSeq)
+    )
   }
 }

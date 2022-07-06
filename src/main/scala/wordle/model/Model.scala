@@ -5,6 +5,7 @@ import scala.collection.immutable.BitSet
 case class Model(
                 outputMsg: String,
                 resultsCache: CachedResults,
+                validAnswers: Option[BitSet],
                 solver: Solver,
                 state: SolverState,
                 currentGuess: Word,

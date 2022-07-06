@@ -1,7 +1,7 @@
 package wordle
 
 import entropy.ResultCacheBuilder
-import io.{Terminal, WordlistReader}
+import io.{AnswerListReader, Terminal, WordlistReader}
 import model.*
 import update.*
 import cats.data.StateT
@@ -15,8 +15,10 @@ object InteractiveApp extends IOApp {
   case object Quit extends Msg
   final case class Invalid(unknown: String) extends Msg
   final case class SetWordlist(filename: String) extends Msg
-  final case class SetWordlistResult(result: Try[IndexedSeq[String]]) extends Msg
-  final case class SetResultMap(result: Try[CachedResults]) extends Msg
+  final case class SetWordlistResult(result: IndexedSeq[String]) extends Msg
+  final case class SetResultMap(result: CachedResults) extends Msg
+  final case class SetAnswerList(filename: String) extends Msg
+  final case class SetAnswerListResult(validAnswers: Seq[String]) extends Msg
   case object AdvanceSolver extends Msg
   final case class AutoSolve(answer: String) extends Msg
   case object InteractiveSolve extends Msg
@@ -28,6 +30,7 @@ object InteractiveApp extends IOApp {
     (Model(
       outputMsg = "",
       resultsCache = null,
+      validAnswers = None,
       solver = null,
       state = SolverState.Inactive,
       currentGuess = -1,
@@ -44,6 +47,8 @@ object InteractiveApp extends IOApp {
       case ("int" | "interactive-solve") :: _ => InteractiveSolve
       case ("as" | "auto-solve") :: word :: _ => AutoSolve(word)
       case ("sw" | "set-wordlist") :: filename :: Nil => SetWordlist(filename)
+      case ("al" | "answer-list") :: filename :: Nil => SetAnswerList(filename)
+      case ("al" | "answer-list") :: Nil => SetAnswerList("_")
       case unknown :: _ => Invalid(unknown)
       case Nil => Invalid("Nil")
     }
@@ -54,10 +59,15 @@ object InteractiveApp extends IOApp {
       case Quit => (model, Cmd.Prompt)
       case Invalid(unknown) => (model.copy(outputMsg = s"Unknown command: \"$unknown\""), Cmd.Prompt)
       case SetWordlist(filename) => (model, Cmd.SetWordlist(filename))
-      case SetWordlistResult(words) => UpdateWordlist(model, words.get)
+      case SetWordlistResult(words) => UpdateWordlist(model, words)
       case SetResultMap(result) => (model.copy(
         outputMsg = "Precalculated results read",
-        resultsCache = result.get,
+        resultsCache = result,
+      ), Cmd.Prompt)
+      case SetAnswerList(filename) => (model, Cmd.SetAnswers(filename))
+      case SetAnswerListResult(answers) => (model.copy(
+          outputMsg = s"${answers.size} answers read",
+          validAnswers = Some(BitSet.fromSpecific(answers.map(model.resultsCache.reverseWordMapping)))
       ), Cmd.Prompt)
       case AdvanceSolver => AdvanceSolverUpd(model)
       case AutoSolve(answer) => StartAutoSolve(model, answer)
@@ -70,8 +80,9 @@ object InteractiveApp extends IOApp {
     val cmdIo = cmd match {
       case Cmd.Prompt => IO.print("> ") >> IO.readLine.map(parse)
       case Cmd.AdvanceSolver => IO(AdvanceSolver)
-      case Cmd.SetWordlist(filename) => WordlistReader.read(filename).map(ws => SetWordlistResult(Success(ws.toIndexedSeq)))
-      case Cmd.SetResultMap => ResultCacheBuilder.resultLookup(model.resultsCache.wordMapping).map(r => SetResultMap(Success(r)))
+      case Cmd.SetWordlist(filename) => WordlistReader.read(filename).map(ws => SetWordlistResult(ws.toIndexedSeq))
+      case Cmd.SetAnswers(filename) => AnswerListReader.read(filename).map(al => SetAnswerListResult(al))
+      case Cmd.SetResultMap => ResultCacheBuilder.resultLookup(model.resultsCache.wordMapping).map(SetResultMap.apply)
       case Cmd.AskGuessMenu(selections) => for {
         input <- IO.readLine
         word = selections(input)
