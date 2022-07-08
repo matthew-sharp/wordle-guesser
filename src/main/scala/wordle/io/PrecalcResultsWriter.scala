@@ -12,10 +12,8 @@ import java.nio.channels.FileChannel.MapMode
 import java.nio.file.{Files, Paths}
 
 object PrecalcResultsWriter {
-  val dir = "wordle-pre-calc"
-
   def compressWriteBytes(bytes: Array[Byte]): IO[Unit] = {
-    val outpath = Paths.get(dir, "results")
+    val outpath = Paths.get("results")
     val decompressedLength = bytes.length
 
     val lenBytes = ByteBuffer.allocate(4).putInt(decompressedLength).array()

@@ -9,8 +9,6 @@ import java.nio.file.{Files, Paths}
 import scala.collection.mutable.ArrayBuffer
 
 object WordResultReader {
-  val dir = "wordle-pre-calc"
-
   def readResultCache: IO[Array[Byte]] = {
     def read(in: InputStream, outbuf: Array[Byte], offset: Int): IO[Unit] = for {
       amtRead <- IO.blocking(in.read(outbuf, offset, outbuf.length - offset))
@@ -19,7 +17,7 @@ object WordResultReader {
     } yield ()
 
     val decompSizeArray = new Array[Byte](4)
-    val path = Paths.get(dir, "results")
+    val path = Paths.get("results")
 
     val fin = Resource.fromAutoCloseable(IO.blocking(Files.newInputStream(path)))
     fin.use(in => for {
