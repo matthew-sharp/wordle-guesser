@@ -10,6 +10,4 @@ object SolverState {
   case object NeedsMarking extends SolverState
 
   case object Marked extends SolverState
-
-  case object Solved extends SolverState
 }

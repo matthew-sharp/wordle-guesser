@@ -16,17 +16,17 @@ object AdvanceSolverUpd {
       case SolverState.NeedsMarking => 
         val mdl = model.copy(state = SolverState.Marked)
         solver.mark(mdl)
-      case SolverState.Marked => if (model.isSolved)
-        (model.copy(state = SolverState.Solved), Cmd.AdvanceSolver)
-      else
+      case SolverState.Marked =>
+        if (model.isSolved)
+          (model.copy(
+            state = SolverState.Inactive,
+            outputMsg = solver.solved(model),
+          ), Cmd.Prompt)
+        else
         {
           val prunedModel = solver.prune(model)
           (prunedModel.copy(outputMsg = solver.preStats(prunedModel)), Cmd.AdvanceSolver)
         }
-      case SolverState.Solved => (model.copy(
-        outputMsg = solver.solved(model),
-        state = SolverState.Inactive),
-        Cmd.Prompt)
     }
   }
 }
