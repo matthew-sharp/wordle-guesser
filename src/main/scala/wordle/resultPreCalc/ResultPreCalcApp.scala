@@ -14,18 +14,19 @@ object ResultPreCalcApp extends IOApp {
       words <- WordlistReader.read()
       wordsLength = words.size
       lookup = WordUtils.inverseWordMap(words)
-      _ <- PrecalcResultsWriter.mappedByteBuffer(wordsLength * wordsLength).use {
-        bb =>
-          words.parTraverse(w => {
-            val offset = wordsLength * lookup(w)
-            writeWordResults(w, words, bb.slice(offset, wordsLength))
-          })
-      }
+      bb = ByteBuffer.allocate(wordsLength * wordsLength)
+      _ <- IO.println("Starting generation of raw byte matrix") >>
+        words.parTraverse(w => {
+          val offset = wordsLength * lookup(w)
+          writeWordResults(w, words, bb.slice(offset, wordsLength))
+        }) >>
+        IO.println("Compressing and writing byte matrix") >>
+        PrecalcResultsWriter.compressWriteBytes(bb.array())
     } yield ExitCode.Success
   }
 
   private def writeWordResults(word: String, words: Seq[String], buffer: ByteBuffer): IO[Unit] = {
     val bytes = wordToResultByteArray(word, words)
-    IO.blocking(buffer.put(bytes))
+    IO(buffer.put(bytes))
   }
 }
