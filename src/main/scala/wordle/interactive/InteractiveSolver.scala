@@ -14,7 +14,7 @@ case class InteractiveSolver(scorer: Scorer, pruner: Pruner) extends Solver (pru
       menu.foreach(i =>
         sb ++= s"${i._2}.\t${model.resultsCache.wordMapping(i._1._1)}${i._1._3}\t${i._1._2}\n"
       )
-      sb ++= "selection?"
+      sb ++= "Enter number from menu or type guess word"
       sb.toString
     }
 
