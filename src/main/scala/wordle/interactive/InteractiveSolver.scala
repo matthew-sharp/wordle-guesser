@@ -25,7 +25,12 @@ case class InteractiveSolver(scorer: Scorer, pruner: Pruner) extends Solver (pru
     val menu = topWords.map(w => (
       w, guessesByScore(w), if (model.currentlyPossibleAnswers.contains(w)) "" else "*")).zipWithIndex
     val inputMapping = menu.map(i => i._2 -> i._1._1).toMap
-    (model.setOutputMsg(menuPrompt(menu)), Cmd.AskGuessMenu(inputMapping))
+    val console = Console(
+      outputMsg = menuPrompt(menu),
+      prompt = "int => select-guess>",
+      parseCallback = InteractiveMenuParser.parse(inputMapping, model.resultsCache.reverseWordMapping),
+    )
+    (model.pushConsole(console), Cmd.Nothing)
   }
 
   def mark(model: Model): (Model, Cmd) =

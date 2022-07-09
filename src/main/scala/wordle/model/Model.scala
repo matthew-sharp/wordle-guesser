@@ -5,7 +5,7 @@ import wordle.Cmd
 import scala.collection.immutable.{BitSet, Queue} 
 
 case class Model(
-                console: Console,
+                consoles: List[Console],
                 queuedCmds: Queue[Cmd],
                 resultsCache: CachedResults,
                 validAnswers: Option[BitSet],
@@ -17,8 +17,4 @@ case class Model(
                 result: List[Constraint],
                 ) {
   def isSolved: Boolean = result.forall(_.constraintType == ConstraintType.Position)
-  
-  def setOutputMsg(outMsg: String): Model = {
-    this.copy(console = this.console.copy(outputMsg = outMsg))
-  }
 }

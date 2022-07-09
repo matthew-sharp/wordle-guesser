@@ -19,10 +19,11 @@ object InteractiveApp extends IOApp {
 
   def init(): (Model, Cmd) = {
     (Model(
-      Console(
+      List(Console(
         outputMsg = "",
         prompt = ">",
-      ),
+        parseCallback = TopLevelParser.parse,
+      )),
       queuedCmds = Queue[Cmd](
         Cmd.SetAnswers(None)
       ),
@@ -52,7 +53,7 @@ object InteractiveApp extends IOApp {
       case AdvanceSolver => AdvanceSolverUpd(model)
       case AutoSolve(answer) => StartAutoSolve(model, answer)
       case InteractiveSolve => StartInteractiveSolve(model)
-      case SetGuess(g) => (model.copy(currentGuess = g), Cmd.AdvanceSolver)
+      case SetGuess(g) => (model.copy(currentGuess = g).popConsole, Cmd.AdvanceSolver)
       case Msg.SetResult(r) => (model.copy(result = r), Cmd.AdvanceSolver)
     }
     if (interimCmd == Cmd.Nothing) interimModel.queuedCmds.dequeueOption match {
@@ -64,17 +65,16 @@ object InteractiveApp extends IOApp {
   }
 
   def io(model: Model, cmd: Cmd): IO[Msg] = {
+    val currentConsole = model.consoles.head
     val cmdIo = cmd match {
-      case Cmd.Nothing => IO.print(s"${model.console.prompt} ") >> IO.readLine.map(TopLevelParser.parse)
+      case Cmd.Nothing => IO.print(s"${currentConsole.prompt} ") >> IO.readLine.map(currentConsole.parseCallback)
       case Cmd.AdvanceSolver => IO(AdvanceSolver)
-      case Cmd.AskGuessMenu(selections) => IO.readLine
-        .map(InteractiveMenuParser.parse(_, selections, model.resultsCache.reverseWordMapping))
       case Cmd.AskResult => Terminal.askResult(model)
       case Cmd.SetWordlist(filename) => WordlistReader.read(filename).map(ws => SetWordlistResult(ws.toIndexedSeq))
       case Cmd.SetAnswers(filename) => AnswerListReader.read(filename).map(SetAnswerListResult.apply)
       case Cmd.SetResultMap => ResultCacheBuilder.resultLookup(model.resultsCache.wordMapping).map(SetResultMap.apply)
     }
-    val outMsg = model.console.outputMsg
+    val outMsg = currentConsole.outputMsg
     (if (outMsg.isEmpty) IO.unit else IO.println(outMsg)) >> cmdIo
   }
 

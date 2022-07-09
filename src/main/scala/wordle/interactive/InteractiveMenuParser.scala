@@ -9,9 +9,9 @@ import wordle.Msg
 
 object InteractiveMenuParser {
 
-  val guess = int | take(5)
+  val guess: Parser[Any] = int | take(5)
 
-  def parse(input: String, choices: Map[Int, Word], invWordLookup: Map[String, Word]): Msg = {
+  def parse(choices: Map[Int, Word], invWordLookup: Map[String, Word])(input: String): Msg = {
     guess.parse(input.trim)
       .done
       .either
