@@ -14,7 +14,4 @@ object Msg {
   final case class SetAnswerListResult(validAnswers: Seq[String]) extends Msg
   case object AdvanceSolver extends Msg
   final case class AutoSolve(answer: String) extends Msg
-  case object InteractiveSolve extends Msg
-  final case class SetGuess(g: Word) extends Msg
-  final case class SetResult(result: List[Constraint]) extends Msg
 }

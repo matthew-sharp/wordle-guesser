@@ -1,12 +1,10 @@
-package wordle.update
+package wordle.interactive
 
 import wordle.Cmd
 import wordle.entropy.EntropyScorer
-import wordle.interactive.InteractiveSolver
 import wordle.model.Model
+import wordle.update.StartSolveCommon
 import wordle.util.LookupPruner
-
-import scala.collection.immutable.BitSet
 
 object StartInteractiveSolve {
   def apply(model: Model): (Model, Cmd) = {

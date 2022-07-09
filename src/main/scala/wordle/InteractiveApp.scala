@@ -1,15 +1,15 @@
 package wordle
 
-import entropy.ResultCacheBuilder
-import io.{AnswerListReader, Terminal, WordlistReader}
-import model.*
-import Msg.*
-import update.*
 import cats.data.StateT
 import cats.effect.*
 import cats.implicits.*
-import wordle.interactive.InteractiveMenuParser
+import wordle.Msg.*
+import wordle.entropy.ResultCacheBuilder
+import wordle.interactive.{InteractiveMenuParser, InteractiveUpdate, StartInteractiveSolve}
+import wordle.io.{AnswerListReader, Terminal, WordlistReader}
+import wordle.model.*
 import wordle.parser.TopLevelParser
+import wordle.update.*
 
 import scala.collection.immutable.{BitSet, Queue}
 import scala.util.{Success, Try}
@@ -38,24 +38,35 @@ object InteractiveApp extends IOApp {
     ), Cmd.SetWordlist(None))
   }
 
-  def update(msg: Msg, model: Model): (Model, Cmd) = {
-    val (interimModel, interimCmd) = msg match {
-      case Quit => (model, Cmd.Nothing)
-      case Invalid(failMsg) => (model.setOutputMsg(s"Invalid input: $failMsg"), Cmd.Nothing)
-      case SetWordlist(filename) => (model, Cmd.SetWordlist(filename))
-      case SetWordlistResult(words) => UpdateWordlist(model, words)
-      case SetResultMap(result) => (model.setOutputMsg("Precalculated results read")
-        .copy(resultsCache = result), Cmd.Nothing)
-      case SetAnswerList(filename) => (model, Cmd.SetAnswers(filename))
-      case SetAnswerListResult(answers) => (model.setOutputMsg(s"${answers.size} answers read")
+  private def updateCore(msg: Msg, model: Model): Option[(Model, Cmd)] = {
+    msg match {
+      case Quit => Some((model, Cmd.Nothing))
+      case Invalid(failMsg) => Some((model.setOutputMsg(s"Invalid input: $failMsg"), Cmd.Nothing))
+      case SetWordlist(filename) => Some((model, Cmd.SetWordlist(filename)))
+      case SetWordlistResult(words) => Some(UpdateWordlist(model, words))
+      case SetResultMap(result) => Some((model.setOutputMsg("Precalculated results read")
+        .copy(resultsCache = result), Cmd.Nothing))
+      case SetAnswerList(filename) => Some((model, Cmd.SetAnswers(filename)))
+      case SetAnswerListResult(answers) => Some((model.setOutputMsg(s"${answers.size} answers read")
         .copy(validAnswers = Some(BitSet.fromSpecific(answers.map(model.resultsCache.reverseWordMapping)))),
-        Cmd.Nothing)
-      case AdvanceSolver => AdvanceSolverUpd(model)
-      case AutoSolve(answer) => StartAutoSolve(model, answer)
-      case InteractiveSolve => StartInteractiveSolve(model)
-      case SetGuess(g) => (model.copy(currentGuess = g).popConsole, Cmd.AdvanceSolver)
-      case Msg.SetResult(r) => (model.copy(result = r), Cmd.AdvanceSolver)
+        Cmd.Nothing))
+      case AdvanceSolver => Some(AdvanceSolverUpd(model))
+      case AutoSolve(answer) => Some(StartAutoSolve(model, answer))
+      case _ => None
     }
+  }
+
+  def update(msg: Msg, model: Model): (Model, Cmd) = {
+    def firstMatch(handlers: List[(Msg, Model) => Option[(Model, Cmd)]]): Option[(Model, Cmd)] = {
+      handlers match
+        case Nil => None
+        case handler :: tail => handler(msg, model).orElse(firstMatch(tail))
+    }
+
+    val (interimModel, interimCmd) = firstMatch(List(
+      updateCore,
+      InteractiveUpdate.update,
+    )).get
     if (interimCmd == Cmd.Nothing) interimModel.queuedCmds.dequeueOption match {
       case Some(nextCmd, stillQueuedCmds) => (interimModel.copy(queuedCmds = stillQueuedCmds), nextCmd)
       case None => (interimModel, interimCmd)

@@ -1,11 +1,11 @@
 package wordle.interactive
 
-import wordle.model.Word
-import atto.Atto.*
 import atto.*
-import ParseResult.*
+import atto.Atto.*
+import atto.ParseResult.*
 import cats.syntax.all.*
 import wordle.Msg
+import wordle.model.Word
 
 object InteractiveMenuParser {
 
@@ -25,7 +25,7 @@ object InteractiveMenuParser {
           case None => Either.left(s"Word \"$str\" is not in the wordlist we know")
         }
       }
-      .map(w => Msg.SetGuess(w))
+      .map(w => MsgInteractive.SetGuess(w))
       .leftMap(Msg.Invalid(_))
       .merge
   }
