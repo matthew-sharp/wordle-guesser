@@ -16,17 +16,16 @@ object WordResultReader {
       else IO.unit
     } yield ()
 
-    val decompSizeArray = new Array[Byte](4)
     val path = Paths.get("results.lz4")
 
-    val fin = Resource.fromAutoCloseable(IO.blocking(Files.newInputStream(path)))
-    fin.use(in => for {
-      _ <- IO.blocking(in.read(decompSizeArray, 0, 4))
-      decompSize = ByteBuffer.wrap(decompSizeArray).getInt
-      decompressedBytes = new Array[Byte](decompSize)
-
-      lzIn = Resource.fromAutoCloseable(IO.blocking(new LZ4FrameInputStream(in)))
-      _ <- lzIn.use(lzIn => read(lzIn, decompressedBytes, 0))
-    } yield decompressedBytes)
+    val lzIn = for {
+      fin <- Resource.fromAutoCloseable(IO.blocking(Files.newInputStream(path)))
+      lzIn <- Resource.fromAutoCloseable(IO.blocking(new LZ4FrameInputStream(fin, true)))
+    } yield lzIn
+    lzIn.use(lzIn =>
+      val decompSize = lzIn.getExpectedContentSize.toInt
+      val decompressedBytes = new Array[Byte](decompSize)
+      read(lzIn, decompressedBytes, 0).map(_ => decompressedBytes)
+    )
   }
 }

@@ -14,29 +14,25 @@ import java.nio.file.{Files, Paths}
 object PrecalcResultsWriter {
   def compressWriteBytes(bytes: Array[Byte]): IO[Unit] = {
     val outpath = Paths.get("results.lz4")
-    val decompressedLength = bytes.length
+    val uncompressedLength = bytes.length
 
-    val lenBytes = ByteBuffer.allocate(4).putInt(decompressedLength).array()
-
-    val out = Resource.fromAutoCloseable(IO.blocking(Files.newOutputStream(outpath)))
-    out.use(
-      out => for {
-        _ <- IO.blocking(out.write(lenBytes))
-        lzOut = Resource.fromAutoCloseable(IO.blocking(lz4OutStream(out, decompressedLength)))
-        _ <- lzOut.use(lzOut => IO.blocking(lzOut.write(bytes)))
-      } yield ()
-    )
+    val lzOut = for {
+      fOut <- Resource.fromAutoCloseable(IO.blocking(Files.newOutputStream(outpath)))
+      lzOut <- Resource.fromAutoCloseable(IO.blocking(lz4OutStream(fOut, uncompressedLength)))
+    } yield lzOut
+    lzOut.use(lzOut => IO.blocking(lzOut.write(bytes)))
   }
 
-  private def lz4OutStream(out: OutputStream, decompressedLength: Int): LZ4FrameOutputStream = {
+  private def lz4OutStream(out: OutputStream, uncompressedLength: Int): LZ4FrameOutputStream = {
     val compressor = LZ4Factory.fastestInstance().highCompressor()
     new LZ4FrameOutputStream(
       out,
       BLOCKSIZE.SIZE_4MB,
-      decompressedLength,
+      uncompressedLength,
       compressor,
       XXHashFactory.fastestInstance().hash32(),
       Bits.BLOCK_INDEPENDENCE,
+      Bits.CONTENT_SIZE,
     )
   }
 }
