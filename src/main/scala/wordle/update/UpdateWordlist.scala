@@ -1,14 +1,13 @@
 package wordle.update
 
 import wordle.Cmd
-import wordle.model._
-import wordle.model.{CachedResults, Model, ResultTernary}
+import wordle.model.*
 
 object UpdateWordlist {
   def apply(model: Model, words: IndexedSeq[String]): (Model, Cmd) = {
     (model.copy(
       resultsCache = CachedResults(
-        Array.empty[ResultTernary],
+        IArray.empty[ResultTernary],
         words,
         Map.empty[String, Word]
       ),

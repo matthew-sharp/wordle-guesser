@@ -3,13 +3,12 @@ package wordle.io
 import cats.effect.{IO, Resource}
 import net.jpountz.lz4.{LZ4Factory, LZ4FrameInputStream}
 
-import java.io.{BufferedInputStream, InputStream}
-import java.nio.ByteBuffer
+import java.io.InputStream
 import java.nio.file.{Files, Paths}
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.immutable.ArraySeq
 
 object WordResultReader {
-  def readResultCache: IO[Array[Byte]] = {
+  def readResultCache: IO[IArray[Byte]] = {
     def read(in: InputStream, outbuf: Array[Byte], offset: Int): IO[Unit] = for {
       amtRead <- IO.blocking(in.read(outbuf, offset, outbuf.length - offset))
       _ <- if (amtRead > -1) read(in, outbuf, offset + amtRead)
@@ -22,10 +21,11 @@ object WordResultReader {
       fin <- Resource.fromAutoCloseable(IO.blocking(Files.newInputStream(path)))
       lzIn <- Resource.fromAutoCloseable(IO.blocking(new LZ4FrameInputStream(fin, true)))
     } yield lzIn
-    lzIn.use(lzIn =>
+    val bytes = lzIn.use(lzIn =>
       val decompSize = lzIn.getExpectedContentSize.toInt
       val decompressedBytes = new Array[Byte](decompSize)
-      read(lzIn, decompressedBytes, 0).as(decompressedBytes)
+        read (lzIn, decompressedBytes, 0).as(decompressedBytes)
     )
+    bytes.map(IArray.unsafeFromArray)
   }
 }
