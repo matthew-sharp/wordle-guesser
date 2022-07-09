@@ -1,9 +1,12 @@
 package wordle.model
 
-import scala.collection.immutable.BitSet 
+import wordle.Cmd
+
+import scala.collection.immutable.{BitSet, Queue} 
 
 case class Model(
                 outputMsg: String,
+                queuedCmds: Queue[Cmd],
                 resultsCache: CachedResults,
                 validAnswers: Option[BitSet],
                 solver: Solver,

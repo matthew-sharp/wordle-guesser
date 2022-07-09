@@ -21,7 +21,7 @@ object AdvanceSolverUpd {
           (model.copy(
             state = SolverState.Inactive,
             outputMsg = solver.solved(model),
-          ), Cmd.Prompt)
+          ), Cmd.Nothing)
         else
         {
           val prunedModel = solver.prune(model)

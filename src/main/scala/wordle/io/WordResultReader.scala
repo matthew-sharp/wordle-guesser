@@ -25,7 +25,7 @@ object WordResultReader {
     lzIn.use(lzIn =>
       val decompSize = lzIn.getExpectedContentSize.toInt
       val decompressedBytes = new Array[Byte](decompSize)
-      read(lzIn, decompressedBytes, 0).map(_ => decompressedBytes)
+      read(lzIn, decompressedBytes, 0).as(decompressedBytes)
     )
   }
 }

@@ -8,13 +8,13 @@ import cats.data.StateT
 import cats.effect.*
 import cats.implicits.*
 
-import scala.collection.immutable.BitSet
+import scala.collection.immutable.{BitSet, Queue}
 import scala.util.{Success, Try}
 
 object InteractiveApp extends IOApp {
   case object Quit extends Msg
   final case class Invalid(unknown: String) extends Msg
-  final case class SetWordlist(filename: String) extends Msg
+  final case class SetWordlist(filename: Option[String]) extends Msg
   final case class SetWordlistResult(result: IndexedSeq[String]) extends Msg
   final case class SetResultMap(result: CachedResults) extends Msg
   final case class SetAnswerList(filename: Option[String]) extends Msg
@@ -29,6 +29,9 @@ object InteractiveApp extends IOApp {
   def init(): (Model, Cmd) = {
     (Model(
       outputMsg = "",
+      queuedCmds = Queue[Cmd](
+        Cmd.SetAnswers(None)
+      ),
       resultsCache = null,
       validAnswers = None,
       solver = null,
@@ -37,7 +40,7 @@ object InteractiveApp extends IOApp {
       currentlyPossibleAnswers = BitSet(),
       guessNum = 0,
       result = List.empty[Constraint]
-    ), Cmd.SetWordlist("wordlist"))
+    ), Cmd.SetWordlist(None))
   }
 
   def parse(input: String): Msg = {
@@ -46,7 +49,8 @@ object InteractiveApp extends IOApp {
       case ("q" | "quit" | "exit") :: _ => Quit
       case ("int" | "interactive-solve") :: _ => InteractiveSolve
       case ("as" | "auto-solve") :: word :: _ => AutoSolve(word)
-      case ("sw" | "set-wordlist") :: filename :: Nil => SetWordlist(filename)
+      case ("sw" | "set-wordlist") :: filename :: Nil => SetWordlist(Some(filename))
+      case ("sw" | "set-wordlist") :: Nil => SetWordlist(None)
       case ("al" | "answer-list") :: filename :: Nil => SetAnswerList(Some(filename))
       case ("al" | "answer-list") :: Nil => SetAnswerList(None)
       case unknown :: _ => Invalid(unknown)
@@ -54,31 +58,38 @@ object InteractiveApp extends IOApp {
     }
   }
 
-  def update(msg: Msg, model: Model): (Model, Cmd) =
-    msg match {
-      case Quit => (model, Cmd.Prompt)
-      case Invalid(unknown) => (model.copy(outputMsg = s"Unknown command: \"$unknown\""), Cmd.Prompt)
+  def update(msg: Msg, model: Model): (Model, Cmd) = {
+    val (interimModel, interimCmd) = msg match {
+      case Quit => (model, Cmd.Nothing)
+      case Invalid(unknown) => (model.copy(outputMsg = s"Unknown command: \"$unknown\""), Cmd.Nothing)
       case SetWordlist(filename) => (model, Cmd.SetWordlist(filename))
       case SetWordlistResult(words) => UpdateWordlist(model, words)
       case SetResultMap(result) => (model.copy(
         outputMsg = "Precalculated results read",
         resultsCache = result,
-      ), Cmd.Prompt)
+      ), Cmd.Nothing)
       case SetAnswerList(filename) => (model, Cmd.SetAnswers(filename))
       case SetAnswerListResult(answers) => (model.copy(
-          outputMsg = s"${answers.size} answers read",
-          validAnswers = Some(BitSet.fromSpecific(answers.map(model.resultsCache.reverseWordMapping)))
-      ), Cmd.Prompt)
+        outputMsg = s"${answers.size} answers read",
+        validAnswers = Some(BitSet.fromSpecific(answers.map(model.resultsCache.reverseWordMapping)))
+      ), Cmd.Nothing)
       case AdvanceSolver => AdvanceSolverUpd(model)
       case AutoSolve(answer) => StartAutoSolve(model, answer)
       case InteractiveSolve => StartInteractiveSolve(model)
       case SetGuess(g) => (model.copy(currentGuess = g), Cmd.AdvanceSolver)
       case Msg.SetResult(r) => (model.copy(result = r), Cmd.AdvanceSolver)
     }
+    if (interimCmd == Cmd.Nothing) interimModel.queuedCmds.dequeueOption match {
+      case Some(nextCmd, stillQueuedCmds) => (interimModel.copy(queuedCmds = stillQueuedCmds), nextCmd)
+      case None => (interimModel, interimCmd)
+    } else {
+      (interimModel, interimCmd)
+    }
+  }
 
   def io(model: Model, cmd: Cmd): IO[Msg] = {
     val cmdIo = cmd match {
-      case Cmd.Prompt => IO.print("> ") >> IO.readLine.map(parse)
+      case Cmd.Nothing => IO.print("> ") >> IO.readLine.map(parse)
       case Cmd.AdvanceSolver => IO(AdvanceSolver)
       case Cmd.SetWordlist(filename) => WordlistReader.read(filename).map(ws => SetWordlistResult(ws.toIndexedSeq))
       case Cmd.SetAnswers(filename) => AnswerListReader.read(filename).map(al => SetAnswerListResult(al))
