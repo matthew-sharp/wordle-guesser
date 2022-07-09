@@ -24,7 +24,7 @@ case class InteractiveSolver(scorer: Scorer, pruner: Pruner) extends Solver (pru
     val topWords = TopN(guessesByScore, 10).takeWhile(guessesByScore(_) > 0)
     val menu = topWords.map(w => (
       w, guessesByScore(w), if (model.currentlyPossibleAnswers.contains(w)) "" else "*")).zipWithIndex
-    val inputMapping = menu.map(i => i._2.toString -> i._1._1).toMap
+    val inputMapping = menu.map(i => i._2 -> i._1._1).toMap
     (model.setOutputMsg(menuPrompt(menu)), Cmd.AskGuessMenu(inputMapping))
   }
 

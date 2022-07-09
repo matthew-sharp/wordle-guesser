@@ -17,12 +17,14 @@ lazy val dependencies = new {
   val catsEffect = "org.typelevel" %% "cats-effect" % "3.3.12"
   val apacheCommonsCompress = "org.apache.commons" % "commons-compress" % "1.21"
   val lz4Java = "org.lz4" % "lz4-java" % "1.8.0"
+  val atto = "org.tpolecat" %% "atto-core" % "0.9.5"
 }
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.11" % "test"
 libraryDependencies += "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4"
 libraryDependencies ++= Seq(dependencies.catsCore, dependencies.catsEffect)
 libraryDependencies += dependencies.lz4Java
+libraryDependencies += dependencies.atto
 
 scalacOptions ++= Seq(
   "-Xfatal-warnings",
