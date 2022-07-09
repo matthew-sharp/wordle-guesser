@@ -17,7 +17,7 @@ object InteractiveApp extends IOApp {
   final case class SetWordlist(filename: String) extends Msg
   final case class SetWordlistResult(result: IndexedSeq[String]) extends Msg
   final case class SetResultMap(result: CachedResults) extends Msg
-  final case class SetAnswerList(filename: String) extends Msg
+  final case class SetAnswerList(filename: Option[String]) extends Msg
   final case class SetAnswerListResult(validAnswers: Seq[String]) extends Msg
   case object AdvanceSolver extends Msg
   final case class AutoSolve(answer: String) extends Msg
@@ -47,8 +47,8 @@ object InteractiveApp extends IOApp {
       case ("int" | "interactive-solve") :: _ => InteractiveSolve
       case ("as" | "auto-solve") :: word :: _ => AutoSolve(word)
       case ("sw" | "set-wordlist") :: filename :: Nil => SetWordlist(filename)
-      case ("al" | "answer-list") :: filename :: Nil => SetAnswerList(filename)
-      case ("al" | "answer-list") :: Nil => SetAnswerList("_")
+      case ("al" | "answer-list") :: filename :: Nil => SetAnswerList(Some(filename))
+      case ("al" | "answer-list") :: Nil => SetAnswerList(None)
       case unknown :: _ => Invalid(unknown)
       case Nil => Invalid("Nil")
     }

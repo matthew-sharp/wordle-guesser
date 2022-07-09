@@ -7,19 +7,10 @@ import java.nio.file.{Files, Paths}
 import scala.io.Source
 
 object AnswerListReader {
-  def read(filename: String = "answer-list"): IO[Seq[String]] = {
-    val fileExists = IO.blocking(Files.exists(Paths.get(filename)))
-    val wordsSource = fileExists.flatMap { exists =>
-      if (exists)
-        IO(Resource.fromAutoCloseable(IO.blocking(Source.fromFile(filename))))
-      else {
-        IO.println("answer-list not found in current directory, using built-in list") >>
-          IO(Resource.fromAutoCloseable(IO.blocking(Source.fromResource("answer-list"))))
-      }
-    }
-    wordsSource.flatMap(resource =>
-      resource.use(source =>
-        IO(source.getLines().toSeq)
-      ))
+  def read(filename: Option[String] = Some("answer-list")): IO[Seq[String]] = {
+    val wordsSource = filename match
+      case Some(f) => Resource.fromAutoCloseable(IO.blocking(Source.fromFile(f)))
+      case None => Resource.fromAutoCloseable(IO.blocking(Source.fromResource("answer-list")))
+    wordsSource.use(source => IO(source.getLines().toSeq))
   }
 }
