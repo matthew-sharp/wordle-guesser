@@ -7,9 +7,9 @@ object AdvanceSolverUpd {
   def apply(model: Model): (Model, Cmd) = {
     val solver = model.solver
     model.state match {
-      case SolverState.Inactive => (model.copy(
-        outputMsg = solver.preStats(model),
-        state = SolverState.PreStats), Cmd.AdvanceSolver)
+      case SolverState.Inactive => (model.setOutputMsg(solver.preStats(model))
+        .copy(state = SolverState.PreStats),
+        Cmd.AdvanceSolver)
       case SolverState.PreStats =>
         val mdl = model.copy(state = SolverState.NeedsMarking)
         solver.prepGuesses(mdl)
@@ -20,12 +20,13 @@ object AdvanceSolverUpd {
         if (model.isSolved)
           (model.copy(
             state = SolverState.Inactive,
-            outputMsg = solver.solved(model),
+            console = model.console.copy(
+            outputMsg = solver.solved(model)),
           ), Cmd.Nothing)
         else
         {
           val prunedModel = solver.prune(model)
-          (prunedModel.copy(outputMsg = solver.preStats(prunedModel)), Cmd.AdvanceSolver)
+          (prunedModel.setOutputMsg(solver.preStats(prunedModel)), Cmd.AdvanceSolver)
         }
     }
   }

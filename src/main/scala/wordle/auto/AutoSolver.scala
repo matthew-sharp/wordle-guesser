@@ -17,18 +17,14 @@ case class AutoSolver(
     }
     val candidateString = model.resultsCache.wordMapping(candidateWord)
     val annotation = if model.currentlyPossibleAnswers.contains(candidateWord) then "" else "*"
-    (model.copy(
-      outputMsg = s"selecting guess: \"$candidateString\"$annotation",
-      currentGuess = candidateWord,
-      ), Cmd.AdvanceSolver)
+    (model.setOutputMsg(s"selecting guess: \"$candidateString\"$annotation")
+      .copy(currentGuess = candidateWord), Cmd.AdvanceSolver)
   }
 
   override def mark(model: Model): (Model, Cmd) = {
     val cons = LookupMarker.mark(model.resultsCache)(model.currentGuess, answer)
-    (model.copy(
-      outputMsg = s"result:           ${ResultUtils.toResultString(cons.map(_.constraintType))}",
-      result = cons,
-    ), Cmd.AdvanceSolver)
+    (model.setOutputMsg(s"result:           ${ResultUtils.toResultString(cons.map(_.constraintType))}")
+      .copy(result = cons), Cmd.AdvanceSolver)
   }
 
 

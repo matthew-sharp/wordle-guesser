@@ -28,7 +28,10 @@ object InteractiveApp extends IOApp {
 
   def init(): (Model, Cmd) = {
     (Model(
-      outputMsg = "",
+      Console(
+        outputMsg = "",
+        prompt = ">",
+      ),
       queuedCmds = Queue[Cmd](
         Cmd.SetAnswers(None)
       ),
@@ -49,8 +52,6 @@ object InteractiveApp extends IOApp {
       case ("q" | "quit" | "exit") :: _ => Quit
       case ("int" | "interactive-solve") :: _ => InteractiveSolve
       case ("as" | "auto-solve") :: word :: _ => AutoSolve(word)
-      case ("sw" | "set-wordlist") :: filename :: Nil => SetWordlist(Some(filename))
-      case ("sw" | "set-wordlist") :: Nil => SetWordlist(None)
       case ("al" | "answer-list") :: filename :: Nil => SetAnswerList(Some(filename))
       case ("al" | "answer-list") :: Nil => SetAnswerList(None)
       case unknown :: _ => Invalid(unknown)
@@ -61,18 +62,15 @@ object InteractiveApp extends IOApp {
   def update(msg: Msg, model: Model): (Model, Cmd) = {
     val (interimModel, interimCmd) = msg match {
       case Quit => (model, Cmd.Nothing)
-      case Invalid(unknown) => (model.copy(outputMsg = s"Unknown command: \"$unknown\""), Cmd.Nothing)
+      case Invalid(unknown) => (model.setOutputMsg(s"Unknown command: \"$unknown\""), Cmd.Nothing)
       case SetWordlist(filename) => (model, Cmd.SetWordlist(filename))
       case SetWordlistResult(words) => UpdateWordlist(model, words)
-      case SetResultMap(result) => (model.copy(
-        outputMsg = "Precalculated results read",
-        resultsCache = result,
-      ), Cmd.Nothing)
+      case SetResultMap(result) => (model.setOutputMsg("Precalculated results read")
+        .copy(resultsCache = result), Cmd.Nothing)
       case SetAnswerList(filename) => (model, Cmd.SetAnswers(filename))
-      case SetAnswerListResult(answers) => (model.copy(
-        outputMsg = s"${answers.size} answers read",
-        validAnswers = Some(BitSet.fromSpecific(answers.map(model.resultsCache.reverseWordMapping)))
-      ), Cmd.Nothing)
+      case SetAnswerListResult(answers) => (model.setOutputMsg(s"${answers.size} answers read")
+        .copy(validAnswers = Some(BitSet.fromSpecific(answers.map(model.resultsCache.reverseWordMapping)))),
+        Cmd.Nothing)
       case AdvanceSolver => AdvanceSolverUpd(model)
       case AutoSolve(answer) => StartAutoSolve(model, answer)
       case InteractiveSolve => StartInteractiveSolve(model)
@@ -89,7 +87,7 @@ object InteractiveApp extends IOApp {
 
   def io(model: Model, cmd: Cmd): IO[Msg] = {
     val cmdIo = cmd match {
-      case Cmd.Nothing => IO.print("> ") >> IO.readLine.map(parse)
+      case Cmd.Nothing => IO.print(s"${model.console.prompt} ") >> IO.readLine.map(parse)
       case Cmd.AdvanceSolver => IO(AdvanceSolver)
       case Cmd.SetWordlist(filename) => WordlistReader.read(filename).map(ws => SetWordlistResult(ws.toIndexedSeq))
       case Cmd.SetAnswers(filename) => AnswerListReader.read(filename).map(al => SetAnswerListResult(al))
@@ -100,7 +98,8 @@ object InteractiveApp extends IOApp {
       } yield SetGuess(word)
       case Cmd.AskResult => Terminal.askResult(model)
     }
-    (if (model.outputMsg.isEmpty) IO.unit else IO.println(model.outputMsg)) >> cmdIo
+    val outMsg = model.console.outputMsg
+    (if (outMsg.isEmpty) IO.unit else IO.println(outMsg)) >> cmdIo
   }
 
   override def run(args: List[String]): IO[ExitCode] = {
@@ -108,7 +107,7 @@ object InteractiveApp extends IOApp {
     val app = StateT[IO, (Model, Cmd), Msg] {
       case (model, cmd) =>
         io(model, cmd).map { msg =>
-          val (updatedModel, newCmd) = update(msg, model.copy(outputMsg = ""))
+          val (updatedModel, newCmd) = update(msg, model.setOutputMsg(""))
           ((updatedModel, newCmd), msg)
         }
     }

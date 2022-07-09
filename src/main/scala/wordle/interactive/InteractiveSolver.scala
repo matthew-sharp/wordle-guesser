@@ -25,9 +25,9 @@ case class InteractiveSolver(scorer: Scorer, pruner: Pruner) extends Solver (pru
     val menu = topWords.map(w => (
       w, guessesByScore(w), if (model.currentlyPossibleAnswers.contains(w)) "" else "*")).zipWithIndex
     val inputMapping = menu.map(i => i._2.toString -> i._1._1).toMap
-    (model.copy(outputMsg = menuPrompt(menu)), Cmd.AskGuessMenu(inputMapping))
+    (model.setOutputMsg(menuPrompt(menu)), Cmd.AskGuessMenu(inputMapping))
   }
 
   def mark(model: Model): (Model, Cmd) =
-    (model.copy(outputMsg = s"${model.resultsCache.wordMapping(model.currentGuess)} result?"), Cmd.AskResult)
+    (model.setOutputMsg(s"${model.resultsCache.wordMapping(model.currentGuess)} result?"), Cmd.AskResult)
 }
