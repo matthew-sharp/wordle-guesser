@@ -17,7 +17,7 @@ object WordResultReader {
     } yield ()
 
     val decompSizeArray = new Array[Byte](4)
-    val path = Paths.get("results")
+    val path = Paths.get("results.lz4")
 
     val fin = Resource.fromAutoCloseable(IO.blocking(Files.newInputStream(path)))
     fin.use(in => for {

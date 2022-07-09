@@ -13,7 +13,7 @@ import java.nio.file.{Files, Paths}
 
 object PrecalcResultsWriter {
   def compressWriteBytes(bytes: Array[Byte]): IO[Unit] = {
-    val outpath = Paths.get("results")
+    val outpath = Paths.get("results.lz4")
     val decompressedLength = bytes.length
 
     val lenBytes = ByteBuffer.allocate(4).putInt(decompressedLength).array()
