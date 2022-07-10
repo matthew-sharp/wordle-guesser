@@ -4,8 +4,8 @@ import wordle.Cmd
 import wordle.model.*
 import wordle.util.TopN
 
-import collection.parallel.CollectionConverters.RangeIsParallelizable
 import scala.collection.mutable
+import scala.collection.parallel.CollectionConverters.RangeIsParallelizable
 
 case class InteractiveSolver(scorer: Scorer, pruner: Pruner) extends Solver (pruner) {
   def prepGuesses(model: Model): (Model, Cmd) = {
@@ -27,7 +27,7 @@ case class InteractiveSolver(scorer: Scorer, pruner: Pruner) extends Solver (pru
     val inputMapping = menu.map(i => i._2 -> i._1._1).toMap
     val console = Console(
       outputMsg = menuPrompt(menu),
-      prompt = "int => select-guess>",
+      prompt = ">int>select-guess>",
       parseCallback = InteractiveMenuParser.parse(inputMapping, model.resultsCache.reverseWordMapping),
     )
     (model.pushConsole(console), Cmd.Nothing)
