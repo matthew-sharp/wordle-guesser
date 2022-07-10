@@ -7,9 +7,9 @@ import wordle.update.StartSolveCommon
 import wordle.util.LookupPruner
 
 object StartInteractiveSolve {
-  def apply(model: Model): (Model, Cmd) = {
+  def apply(model: Model, numBoards: Int): (Model, Cmd) = {
     val scorer = EntropyScorer(model.resultsCache)
     val solver = InteractiveSolver(scorer = scorer, pruner = LookupPruner(model.resultsCache))
-    StartSolveCommon(model, solver)
+    StartSolveCommon(model, solver, numBoards)
   }
 }

@@ -4,6 +4,7 @@ import cats.data.StateT
 import cats.effect.*
 import cats.implicits.*
 import wordle.Msg.*
+import wordle.auto.StartAutoSolve
 import wordle.entropy.ResultCacheBuilder
 import wordle.interactive.{InteractiveMenuParser, InteractiveUpdate, StartInteractiveSolve}
 import wordle.io.{AnswerListReader, WordlistReader}

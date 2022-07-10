@@ -4,7 +4,7 @@ import wordle.Msg
 import wordle.model.{ConstraintType, Word}
 
 object MsgInteractive {
-  case object InteractiveSolve extends Msg
+  final case class InteractiveSolve(numBoards: Int) extends Msg
 
   final case class SetGuess(g: Word) extends Msg
 

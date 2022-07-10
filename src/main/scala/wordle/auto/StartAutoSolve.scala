@@ -1,12 +1,10 @@
-package wordle.update
+package wordle.auto
 
 import wordle.Cmd
-import wordle.auto.AutoSolver
 import wordle.entropy.EntropyScorer
-import wordle.model.*
+import wordle.model.Model
+import wordle.update.StartSolveCommon
 import wordle.util.LookupPruner
-
-import scala.collection.immutable.BitSet
 
 object StartAutoSolve {
   def apply(model: Model, answer: String): (Model, Cmd) = {
@@ -15,6 +13,6 @@ object StartAutoSolve {
       scorer = EntropyScorer(model.resultsCache),
       pruner = LookupPruner(model.resultsCache),
     )
-    StartSolveCommon(model, solver)
+    StartSolveCommon(model, solver, 1)
   }
 }
