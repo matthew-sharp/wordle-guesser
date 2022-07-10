@@ -11,7 +11,7 @@ object ResultUtils {
     results match {
       case Nil => 0.asInstanceOf[ResultTernary]
       case head :: tail =>
-        val trit: Short = head match {
+        val trit = head match {
           case ConstraintType.Absent => 0
           case ConstraintType.Exists => 1
           case ConstraintType.Position => 2
