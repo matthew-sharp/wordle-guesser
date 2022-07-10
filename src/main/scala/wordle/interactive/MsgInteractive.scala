@@ -9,4 +9,6 @@ object MsgInteractive {
   final case class SetGuess(g: Word) extends Msg
 
   final case class SetResult(result: List[Constraint]) extends Msg
+
+  case object Abort extends Msg
 }

@@ -9,7 +9,7 @@ import wordle.model.Word
 
 object InteractiveMenuParser {
 
-  val guess: Parser[Any] = int | take(5)
+  val guess: Parser[Any] = int | string("q") | take(5)
 
   def parse(choices: Map[Int, Word], invWordLookup: Map[String, Word])(input: String): Msg = {
     guess.parse(input.trim)
@@ -20,13 +20,17 @@ object InteractiveMenuParser {
           case Some(w) => Either.right(w)
           case None => Either.left(s"$c not a choice in the menu")
         }
+        case "q" => Either.left("!abort")
         case str: String => invWordLookup.get(str) match {
           case Some(w) => Either.right(w)
           case None => Either.left(s"Word \"$str\" is not in the wordlist we know")
         }
       }
       .map(w => MsgInteractive.SetGuess(w))
-      .leftMap(Msg.Invalid(_))
+      .leftMap(l => l match
+        case "!abort" => MsgInteractive.Abort
+        case err => Msg.Invalid(err)
+      )
       .merge
   }
 }

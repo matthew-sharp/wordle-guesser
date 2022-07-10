@@ -10,6 +10,7 @@ object InteractiveUpdate {
       case SetGuess(g) => Some((model.copy(currentGuess = g).popConsole, Cmd.AdvanceSolver))
       case SetResult(r) => Some((model.copy(result = r), Cmd.AdvanceSolver))
       case InteractiveSolve => Some(StartInteractiveSolve(model))
+      case Abort => Some(model.popConsole, Cmd.Nothing)
       case _ => None
   }
 }
