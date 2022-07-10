@@ -23,7 +23,7 @@ case class AutoSolver(
 
   override def mark(model: Model): (Model, Cmd) = {
     val cons = LookupMarker.mark(model.resultsCache)(model.currentGuess, answer)
-    (model.setOutputMsg(s"result:           ${ResultUtils.toResultString(cons.map(_.constraintType))}")
+    (model.setOutputMsg(s"result:           ${ResultUtils.toResultString(cons)}")
       .copy(result = cons), Cmd.AdvanceSolver)
   }
 

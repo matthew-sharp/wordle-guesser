@@ -2,7 +2,6 @@ package wordle.interactive
 
 import atto.*
 import atto.Atto.*
-import atto.ParseResult.*
 import cats.syntax.all.*
 import wordle.Msg
 import wordle.model.Word

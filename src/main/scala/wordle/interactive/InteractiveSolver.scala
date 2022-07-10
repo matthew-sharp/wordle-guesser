@@ -34,5 +34,10 @@ case class InteractiveSolver(scorer: Scorer, pruner: Pruner) extends Solver (pru
   }
 
   def mark(model: Model): (Model, Cmd) =
-    (model.setOutputMsg(s"${model.resultsCache.wordMapping(model.currentGuess)} result?"), Cmd.AskResult)
+    val console = Console(
+      outputMsg = s"Result for ${model.resultsCache.wordMapping(model.currentGuess)}?",
+      prompt = ">int>ask-result>",
+      parseCallback = ResultParser.parse
+    )
+    (model.pushConsole(console), Cmd.Nothing)
 }

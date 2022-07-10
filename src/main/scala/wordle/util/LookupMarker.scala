@@ -1,13 +1,12 @@
 package wordle.util
 
-import wordle.model.{CachedResults, Constraint, Word}
+import wordle.model.{CachedResults, ConstraintType, Word}
 
 object LookupMarker {
-  def mark(cache: CachedResults)(guess: Word, answer: Word): List[Constraint] = {
+  def mark(cache: CachedResults)(guess: Word, answer: Word): List[ConstraintType] = {
     val totalWords = cache.wordMapping.size
-    ResultUtils.toConstraints(
-      cache.resultLookup(guess * totalWords + answer),
-      cache.wordMapping(guess)
-      )
+
+    val ternary = cache.resultLookup(guess * totalWords + answer)
+    ResultUtils.toConstraintTypes(ternary)
   }
 }

@@ -6,7 +6,7 @@ import cats.implicits.*
 import wordle.Msg.*
 import wordle.entropy.ResultCacheBuilder
 import wordle.interactive.{InteractiveMenuParser, InteractiveUpdate, StartInteractiveSolve}
-import wordle.io.{AnswerListReader, Terminal, WordlistReader}
+import wordle.io.{AnswerListReader, WordlistReader}
 import wordle.model.*
 import wordle.parser.TopLevelParser
 import wordle.update.*
@@ -34,7 +34,7 @@ object InteractiveApp extends IOApp {
       currentGuess = -1,
       currentlyPossibleAnswers = BitSet(),
       guessNum = 0,
-      result = List.empty[Constraint]
+      result = List.empty[ConstraintType]
     ), Cmd.SetWordlist(None))
   }
 
@@ -80,7 +80,6 @@ object InteractiveApp extends IOApp {
     val cmdIo = cmd match {
       case Cmd.Nothing => IO.print(s"${currentConsole.prompt} ") >> IO.readLine.map(currentConsole.parseCallback)
       case Cmd.AdvanceSolver => IO(AdvanceSolver)
-      case Cmd.AskResult => Terminal.askResult(model)
       case Cmd.SetWordlist(filename) => WordlistReader.read(filename).map(ws => SetWordlistResult(ws.toIndexedSeq))
       case Cmd.SetAnswers(filename) => AnswerListReader.read(filename).map(SetAnswerListResult.apply)
       case Cmd.SetResultMap => ResultCacheBuilder.resultLookup(model.resultsCache.wordMapping).map(SetResultMap.apply)

@@ -1,10 +1,10 @@
 package wordle.util
 
-import wordle.model._
+import wordle.model.*
 
-import scala.annotation.targetName
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
+import scala.annotation.targetName
 
 object ResultUtils {
   def toTernary(results: List[ConstraintType]): ResultTernary = {
@@ -27,6 +27,25 @@ object ResultUtils {
 
   inline def toResultString(results: Seq[ConstraintType]): String = {
     results.map(_.c).mkString
+  }
+
+  def toConstraintTypes(ternary: ResultTernary): List[ConstraintType] = {
+    def until(ternary: ResultTernary, remaining: Int): List[ConstraintType] = {
+      if (remaining <= 0) Nil
+      else {
+        val posInt = ternary.asInstanceOf[Int] & 0xff
+        val trit = posInt % 3
+        val conType = trit match {
+          case 0 => ConstraintType.Absent
+          case 1 => ConstraintType.Exists
+          case 2 => ConstraintType.Position
+        }
+        val remainingTernary = (posInt / 3).toByte
+        conType :: until(remainingTernary, remaining - 1)
+      }
+    }
+
+    until(ternary, 5)
   }
 
   def toConstraints(ternary: ResultTernary, word: String): List[Constraint] = {
