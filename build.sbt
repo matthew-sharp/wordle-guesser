@@ -7,7 +7,7 @@ scalaVersion := "3.1.3"
 enablePlugins(JavaAppPackaging)
 
 Universal / javaOptions ++= Seq(
-  "-J-Xmx6g"
+  "-J-Xmx2g"
 )
 
 Compile / run / mainClass  := Some("wordle.InteractiveApp")
