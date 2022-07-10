@@ -19,7 +19,7 @@ case class InteractiveSolver(scorer: Scorer, pruner: Pruner) extends Solver (pru
     }
 
     val guessesByScore = model.resultsCache.wordMapping.indices.par.map(g =>
-      (g, model.boards.map(b =>
+      (g, model.boards.filter(b => !b.isSolved).map(b =>
         scorer.score(g, b.currentlyPossibleAnswers, model.guessNum)).sum
       )
     ).seq.toMap
@@ -37,11 +37,12 @@ case class InteractiveSolver(scorer: Scorer, pruner: Pruner) extends Solver (pru
   }
 
   def mark(model: Model): (Model, Cmd) =
-    val consoles = model.boards.indices.map(idx =>
+    val consoles = model.boards.zipWithIndex.filter((b, _) => !b.isSolved).map((_, idx) =>
       Console(
         outputMsg = s"Result for ${model.resultsCache.wordMapping(model.currentGuess)} on board $idx?",
         prompt = s">int>ask-result($idx)>",
         parseCallback = ResultParser.parse(idx),
+        conType = ResultConsole,
       )
     )
     (model.pushConsoles(consoles), Cmd.Nothing)

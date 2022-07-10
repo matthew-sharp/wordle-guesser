@@ -2,10 +2,15 @@ package wordle.model
 
 import wordle.Msg
 
+trait ConsoleType
+
+case object Generic extends ConsoleType
+
 case class Console(
                     outputMsg: String,
                     prompt: String,
                     parseCallback: String => Msg,
+                    conType: ConsoleType = Generic,
                   )
 
 extension (m: Model) {

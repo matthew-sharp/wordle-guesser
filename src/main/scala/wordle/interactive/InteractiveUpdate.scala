@@ -8,9 +8,11 @@ object InteractiveUpdate {
   def update(msg: Msg, model: Model): Option[(Model, Cmd)] = {
     msg match
       case SetGuess(g) => Some((model.copy(currentGuess = g).popConsole, Cmd.AdvanceSolver))
-      case SetResult(r, n) => Some((model.setBoardResult(n)(r).popConsole,
-        if (n >= model.boards.size - 1) Cmd.AdvanceSolver
-        else Cmd.Nothing))
+      case SetResult(r, n) =>
+        val poppedModel = model.setBoardResult(n)(r).popConsole
+        Some((poppedModel,
+          if (poppedModel.consoles.exists(c => c.conType == ResultConsole)) Cmd.Nothing
+          else Cmd.AdvanceSolver))
       case InteractiveSolve(n) => Some(StartInteractiveSolve(model, n))
       case Abort => Some(model.popConsole, Cmd.Nothing)
       case _ => None
