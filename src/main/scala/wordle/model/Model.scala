@@ -12,9 +12,7 @@ case class Model(
                   solver: Solver,
                   state: SolverState,
                   currentGuess: Word,
-                  currentlyPossibleAnswers: BitSet,
                   guessNum: Int,
-                  result: List[ConstraintType],
+                  boards: Seq[Board],
                 ) {
-  def isSolved: Boolean = result.forall(_ == ConstraintType.Position)
 }

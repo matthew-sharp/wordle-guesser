@@ -32,9 +32,8 @@ object InteractiveApp extends IOApp {
       solver = null,
       state = SolverState.Inactive,
       currentGuess = -1,
-      currentlyPossibleAnswers = BitSet(),
       guessNum = 0,
-      result = List.empty[ConstraintType]
+      boards = Seq.empty[Board],
     ), Cmd.SetWordlist(None))
   }
 

@@ -18,12 +18,15 @@ case class InteractiveSolver(scorer: Scorer, pruner: Pruner) extends Solver (pru
       sb.toString
     }
 
-    val guessesByScore = model.resultsCache.wordMapping.indices.par.map(
-      g => (g, scorer.score(g, model.currentlyPossibleAnswers, model.guessNum))
+    val guessesByScore = model.resultsCache.wordMapping.indices.par.map(g =>
+      (g, model.boards.map(b =>
+        scorer.score(g, b.currentlyPossibleAnswers, model.guessNum)).sum
+      )
     ).seq.toMap
     val topWords = TopN(guessesByScore, 10).takeWhile(guessesByScore(_) > 0)
     val menu = topWords.map(w => (
-      w, guessesByScore(w), if (model.currentlyPossibleAnswers.contains(w)) "" else "*")).zipWithIndex
+      w, guessesByScore(w),
+      if (model.boards.size == 1 && !model.boards.head.currentlyPossibleAnswers.contains(w)) "*" else "")).zipWithIndex
     val inputMapping = menu.map(i => i._2 -> i._1._1).toMap
     val console = Console(
       outputMsg = menuPrompt(menu),
@@ -34,10 +37,12 @@ case class InteractiveSolver(scorer: Scorer, pruner: Pruner) extends Solver (pru
   }
 
   def mark(model: Model): (Model, Cmd) =
-    val console = Console(
-      outputMsg = s"Result for ${model.resultsCache.wordMapping(model.currentGuess)}?",
-      prompt = ">int>ask-result>",
-      parseCallback = ResultParser.parse
+    val consoles = model.boards.indices.map(idx =>
+      Console(
+        outputMsg = s"Result for ${model.resultsCache.wordMapping(model.currentGuess)} on board $idx?",
+        prompt = s">int>ask-result($idx)>",
+        parseCallback = ResultParser.parse(idx),
+      )
     )
-    (model.pushConsole(console), Cmd.Nothing)
+    (model.pushConsoles(consoles), Cmd.Nothing)
 }

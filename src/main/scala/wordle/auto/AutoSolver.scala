@@ -13,18 +13,22 @@ case class AutoSolver(
                      ) extends Solver(pruner) {
   override def prepGuesses(model: Model): (Model, Cmd) = {
     val candidateWord = model.resultsCache.wordMapping.indices.par.maxBy { candidate =>
-      scorer.score(candidate.toShort, model.currentlyPossibleAnswers, model.guessNum)
+      model.boards.map(b =>
+        scorer.score(candidate.toShort, b.currentlyPossibleAnswers, model.guessNum)
+      ).sum
     }
     val candidateString = model.resultsCache.wordMapping(candidateWord)
-    val annotation = if model.currentlyPossibleAnswers.contains(candidateWord) then "" else "*"
+    val annotation = if model.boards.size == 1 &&
+      !model.boards.head.currentlyPossibleAnswers.contains(candidateWord) then "*" else ""
     (model.setOutputMsg(s"selecting guess: \"$candidateString\"$annotation")
       .copy(currentGuess = candidateWord), Cmd.AdvanceSolver)
   }
 
+  // Currently this only supports a single board and will drop all other boards
   override def mark(model: Model): (Model, Cmd) = {
     val cons = LookupMarker.mark(model.resultsCache)(model.currentGuess, answer)
     (model.setOutputMsg(s"result:           ${ResultUtils.toResultString(cons)}")
-      .copy(result = cons), Cmd.AdvanceSolver)
+      .copy(boards = Seq(model.boards.head.copy(result = cons))), Cmd.AdvanceSolver)
   }
 
 

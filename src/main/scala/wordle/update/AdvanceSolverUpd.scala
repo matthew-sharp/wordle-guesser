@@ -1,7 +1,7 @@
 package wordle.update
 
 import wordle.Cmd
-import wordle.model.{setOutputMsg, Model, SolverState}
+import wordle.model.{Model, SolverState, setOutputMsg}
 
 object AdvanceSolverUpd {
   def apply(model: Model): (Model, Cmd) = {
@@ -17,13 +17,12 @@ object AdvanceSolverUpd {
         val mdl = model.copy(state = SolverState.Marked)
         solver.mark(mdl)
       case SolverState.Marked =>
-        if (model.isSolved)
+        if (model.boards.forall(b => b.isSolved))
           (model
             .copy(state = SolverState.Inactive)
             .setOutputMsg(solver.solved(model)),
             Cmd.Nothing)
-        else
-        {
+        else {
           val prunedModel = solver.prune(model)
           (prunedModel.setOutputMsg(solver.preStats(prunedModel)), Cmd.AdvanceSolver)
         }

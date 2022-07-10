@@ -1,7 +1,7 @@
 package wordle.update
 
 import wordle.Cmd
-import wordle.model.{Model, Solver, SolverState}
+import wordle.model.*
 
 import scala.collection.immutable.BitSet
 
@@ -10,10 +10,14 @@ object StartSolveCommon {
     (model.copy(
       solver = solver,
       state = SolverState.Inactive,
-      currentlyPossibleAnswers = model.validAnswers match {
-        case Some(a) => a
-        case None => BitSet.fromSpecific(model.resultsCache.wordMapping.indices)},
-      guessNum = 1),
-      Cmd.AdvanceSolver)
+      guessNum = 1,
+      boards = Seq(Board(
+        currentlyPossibleAnswers = model.validAnswers match {
+          case Some(a) => a
+          case None => BitSet.fromSpecific(model.resultsCache.wordMapping.indices)
+        },
+        result = List.empty[ConstraintType],
+      )),
+    ), Cmd.AdvanceSolver)
   }
 }

@@ -15,7 +15,7 @@ object ResultParser {
   val result: Parser[List[Char]] = manyN(1, char('q'))
     | manyN(5, choice(ConstraintType.values.toList.map(cns => char(cns.c))))
 
-  def parse(input: String): Msg = {
+  def parse(boardNum: Int)(input: String): Msg = {
     result.parse(input.trim)
       .done
       .either
@@ -26,7 +26,7 @@ object ResultParser {
             .fold(Either.left(s"'$c' not a valid result part'"))(Either.right)
         ).sequence
       }
-      .map(cons => MsgInteractive.SetResult(cons))
+      .map(cons => MsgInteractive.SetResult(cons, boardNum))
       .leftMap(l => l match
         case "!abort" => MsgInteractive.Abort
         case err => Msg.Invalid(err)

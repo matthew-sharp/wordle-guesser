@@ -6,7 +6,8 @@ import wordle.util.ResultUtils
 trait Solver(pruner: Pruner) {
   
   def preStats(model: Model): String = {
-    s"${model.currentlyPossibleAnswers.size} possible words remaining"
+    if (model.boards.size == 1) s"${model.boards.head.currentlyPossibleAnswers.size} possible words remaining"
+    else ""
   }
 
   def prepGuesses(model: Model): (Model, Cmd)
@@ -17,11 +18,7 @@ trait Solver(pruner: Pruner) {
     model.copy(
       state = SolverState.PreStats,
       guessNum = model.guessNum + 1,
-      currentlyPossibleAnswers = pruner.pruneWords(
-        model.currentlyPossibleAnswers,
-        ResultUtils.toTernary(model.result),
-        model.currentGuess)
-    )
+    ).pruneBoards(pruner)
   }
   
   def solved(model: Model): String = ""
