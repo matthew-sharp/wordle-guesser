@@ -4,6 +4,7 @@ A Wordle guessing interactive command line application. Features include:
 
 * An interactive mode allowing selection of top guesses from a menu or entry of any arbitrary word (that is in the
   master list) as a guess.
+* Support for multi-board games (eg. Quordle) in interactive mode.
 * An "auto" mode where the sequence of guesses it would take to solve a provided word are printed.
 
 ## Installation
@@ -160,7 +161,8 @@ Result for hinge?
 ### Main menu ("> ") commands
 
 * "quit" ("q"): I'll give you one guess what this does.
-* "interactive-solve" ("int"): Starts an interactive solving session.
+* "interactive-solve \<num-boards>" ("int \<num-boards>"): Starts an interactive solving session with \<num-boards>, or
+  1 board if not specified. Multi-board has some rough edges and means lots of typing.
 * "auto-solve \<word>" ("as \<word>"): Runs through the solving session for \<word> non-interactively, printing out
   various information along the way.
 * "answer-list \<filename>" ("al \<filename>"): Loads a list of possible answers from \<filename> (or reverts to the
@@ -207,7 +209,6 @@ q
 
 to the standard input and then using grep/sed/cut over the output, but a proper batch mode would be nice.
 
-* Support for some of the various "multi-word" variants of wordle that exist.
 * Support for dumping out various info/stats during interactive mode, eg.
     * The list of still possible answers
     * The score of a specific guess
