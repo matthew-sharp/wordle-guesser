@@ -8,7 +8,7 @@ case class Board(
                   currentlyPossibleAnswers: BitSet,
                   result: List[ConstraintType],
                 ) {
-  def isSolved: Boolean = result.forall(_ == ConstraintType.Position)
+  def isSolved: Boolean = result.nonEmpty && result.forall(_ == ConstraintType.Position)
 }
 
 extension (m: Model) {
