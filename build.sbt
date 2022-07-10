@@ -1,6 +1,6 @@
 name := "wordle"
 
-version := "0.3.1"
+version := "1.0.0"
 
 scalaVersion := "3.1.3"
 
