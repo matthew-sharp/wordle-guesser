@@ -1,7 +1,7 @@
 package wordle.resultPreCalc
 
-import cats.syntax.parallel._
 import cats.effect.{ExitCode, IO, IOApp}
+import cats.syntax.parallel.*
 import wordle.io.{PrecalcResultsWriter, WordlistReader}
 import wordle.resultPreCalc.ResultPreCalculator.wordToResultByteArray
 import wordle.util.WordUtils
@@ -11,7 +11,7 @@ import java.nio.ByteBuffer
 object ResultPreCalcApp extends IOApp {
   override def run(args: List[String]): IO[ExitCode] = {
     for {
-      words <- WordlistReader.read()
+      words <- WordlistReader.read(None)
       wordsLength = words.size
       lookup = WordUtils.inverseWordMap(words)
       bb = ByteBuffer.allocate(wordsLength * wordsLength)
