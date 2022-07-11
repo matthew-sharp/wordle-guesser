@@ -39,8 +39,8 @@ case class InteractiveSolver(scorer: Scorer, pruner: Pruner) extends Solver (pru
   def mark(model: Model): (Model, Cmd) =
     val consoles = model.boards.zipWithIndex.filter((b, _) => !b.isSolved).map((_, idx) =>
       Console(
-        outputMsg = s"Result for ${model.resultsCache.wordMapping(model.currentGuess)} on board $idx?",
-        prompt = s">int>ask-result($idx)>",
+        outputMsg = s"Result for ${model.resultsCache.wordMapping(model.currentGuess)} on board ${idx + 1}?",
+        prompt = s">int>ask-result(${idx + 1})>",
         parseCallback = ResultParser.parse(idx),
         conType = ResultConsole,
       )
