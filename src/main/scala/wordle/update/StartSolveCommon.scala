@@ -14,7 +14,8 @@ object StartSolveCommon {
       boards = (0 until numBoards).map(_ =>
         Board(
           currentlyPossibleAnswers = model.validAnswers match {
-            case Some(a) => a
+            case Some(a: BitSet) => a
+            case Some(a: Map[_, _]) => BitSet.fromSpecific(a.asInstanceOf[Map[Word, Double]].keys)
             case None => BitSet.fromSpecific(model.resultsCache.wordMapping.indices)
           },
           result = List.empty[ConstraintType],

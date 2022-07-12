@@ -11,7 +11,12 @@ object Msg {
   final case class SetWordlistResult(result: IndexedSeq[String]) extends Msg
   final case class SetResultMap(result: CachedResults) extends Msg
   final case class SetAnswerList(filename: Option[String]) extends Msg
+
+  final case class SetWeightedAnswerList(filename: Option[String]) extends Msg
+
   final case class SetAnswerListResult(validAnswers: Seq[String]) extends Msg
+
+  final case class SetWeightedAnswerListResult(weightedAnswers: Seq[String]) extends Msg
   case object AdvanceSolver extends Msg
   final case class AutoSolve(answer: String) extends Msg
 }

@@ -8,7 +8,7 @@ case class Model(
                   consoles: List[Console],
                   queuedCmds: Queue[Cmd],
                   resultsCache: CachedResults,
-                  validAnswers: Option[BitSet],
+                  validAnswers: Option[BitSet | Map[Word, Double]],
                   solver: Solver,
                   state: SolverState,
                   currentGuess: Word,

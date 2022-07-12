@@ -47,9 +47,11 @@ object InteractiveApp extends IOApp {
       case SetResultMap(result) => Some((model.setOutputMsg("Precalculated results read")
         .copy(resultsCache = result), Cmd.Nothing))
       case SetAnswerList(filename) => Some((model, Cmd.SetAnswers(filename)))
+      case SetWeightedAnswerList(filename) => Some((model, Cmd.SetWeightedAnswers(filename)))
       case SetAnswerListResult(answers) => Some((model.setOutputMsg(s"${answers.size} answers read")
         .copy(validAnswers = Some(BitSet.fromSpecific(answers.map(model.resultsCache.reverseWordMapping)))),
         Cmd.Nothing))
+      case SetWeightedAnswerListResult(answers) => Some(UpdateWeightedAnswerList(model, answers))
       case AdvanceSolver => Some(AdvanceSolverUpd(model))
       case AutoSolve(answer) => Some(StartAutoSolve(model, answer))
       case _ => None
@@ -82,6 +84,7 @@ object InteractiveApp extends IOApp {
       case Cmd.AdvanceSolver => IO(AdvanceSolver)
       case Cmd.SetWordlist(filename) => WordlistReader.read(filename).map(ws => SetWordlistResult(ws.toIndexedSeq))
       case Cmd.SetAnswers(filename) => AnswerListReader.read(filename).map(SetAnswerListResult.apply)
+      case Cmd.SetWeightedAnswers(filename) => AnswerListReader.read(filename).map(SetWeightedAnswerListResult.apply)
       case Cmd.SetResultMap => ResultCacheBuilder.resultLookup(model.resultsCache.wordMapping).map(SetResultMap.apply)
     }
     val outMsg = currentConsole.outputMsg
