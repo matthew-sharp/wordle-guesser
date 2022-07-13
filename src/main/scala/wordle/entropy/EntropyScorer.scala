@@ -1,6 +1,7 @@
 package wordle.entropy
 
 import wordle.model.*
+import wordle.util.MemoizedLog
 
 import scala.collection.immutable.BitSet
 
@@ -9,13 +10,7 @@ case class EntropyScorer(resultsCache: CachedResults,
                          logTotalWeight: Double,
                          remainingValidWords: Map[Word, Double],
                         ) extends Scorer with WeightedScorer {
-  def memoizedLog: Int => Double = {
-    val cache = collection.mutable.Map.empty[Int, Double]
-
-    num => cache.getOrElseUpdate(num, Math.log(num))
-  }
-
-  private val log2 = memoizedLog(2)
+  private val log2 = MemoizedLog(2)
   private val totalWordCount = resultsCache.wordMapping.size
 
   def score(candidate: Word, validAnswers: BitSet, guessNum: Int): Double = {
@@ -27,7 +22,7 @@ case class EntropyScorer(resultsCache: CachedResults,
     val possibleAnswerBias =
       if (validAnswers.contains(candidate))
         if (totalGuesses <= 1) 100
-        else log2 / memoizedLog(totalGuesses)
+        else log2 / MemoizedLog(totalGuesses)
       else 0
     // This is an optimisation of numByResult.map(c => c/totalGuesses * Math.log(totalGuesses/c) / log2).sum
     (totalLog - numByResult.map(c => c * MemoizedLog(c)).sum / totalGuesses) / log2 + possibleAnswerBias
