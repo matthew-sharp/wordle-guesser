@@ -47,6 +47,7 @@ object InteractiveApp extends IOApp {
       case SetResultMap(result) => Some((model.setOutputMsg("Precalculated results read")
         .copy(resultsCache = result), Cmd.Nothing))
       case SetAnswerList(filename) => Some((model, Cmd.SetAnswers(filename)))
+      case ClearAnswerList => Some((model.copy(validAnswers = None), Cmd.Nothing))
       case SetWeightedAnswerList(filename) => Some((model, Cmd.SetWeightedAnswers(filename)))
       case SetAnswerListResult(answers) => Some((model.setOutputMsg(s"${answers.size} answers read")
         .copy(validAnswers = Some(BitSet.fromSpecific(answers.map(model.resultsCache.reverseWordMapping)))),

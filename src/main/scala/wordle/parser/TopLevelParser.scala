@@ -20,11 +20,12 @@ object TopLevelParser {
       case "" => Msg.SetAnswerList(None)
       case f => Msg.SetAnswerList(Some(f))
     )
+  private val clearAnsList: Parser[Msg] = (string("cal") | string("clear-answer-list")) >| Msg.ClearAnswerList
   private val weightedAnswerList: Parser[Msg] =
     ((string("wal") | string("weighted-answer-list")) ~> skipWhitespace ~> takeText)
       .map(filename => Msg.SetWeightedAnswerList(Some(filename)))
 
-  val top: Parser[Msg] = quit | intSolveMulti | intSolve | autoSolve | ansList | weightedAnswerList
+  val top: Parser[Msg] = quit | intSolveMulti | intSolve | autoSolve | ansList | weightedAnswerList | clearAnsList
 
   def parse(input: String): Msg = {
     top

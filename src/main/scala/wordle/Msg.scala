@@ -11,6 +11,7 @@ object Msg {
   final case class SetWordlistResult(result: IndexedSeq[String]) extends Msg
   final case class SetResultMap(result: CachedResults) extends Msg
   final case class SetAnswerList(filename: Option[String]) extends Msg
+  case object ClearAnswerList extends Msg
 
   final case class SetWeightedAnswerList(filename: Option[String]) extends Msg
 
