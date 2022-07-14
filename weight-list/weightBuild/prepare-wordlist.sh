@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cat words | grep -e '^.....[[:space:]]' | cut -f 1
+grep -e '^.....[[:space:]]' | cut -f 1 | sed '$a wooer'
