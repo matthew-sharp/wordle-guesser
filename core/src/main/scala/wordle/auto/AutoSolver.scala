@@ -12,9 +12,11 @@ case class AutoSolver(
                        pruner: Pruner,
                      ) extends Solver(scorer, pruner) {
   override def prepGuesses(model: Model): (Model, Cmd) = {
+    val boardScorers = generateBoardScorers(model)
+    
     val candidateWord = model.resultsCache.wordMapping.indices.par.maxBy { candidate =>
       model.boards.map(b =>
-        scorer.score(b.currentlyPossibleAnswers)(candidate.toShort, model.guessNum)
+        boardScorers(b)(candidate, model.guessNum)
       ).sum
     }
     val candidateString = model.resultsCache.wordMapping(candidateWord)
