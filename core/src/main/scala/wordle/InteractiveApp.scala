@@ -79,8 +79,10 @@ object InteractiveApp extends IOApp {
     val cmdIo = cmd match {
       case Cmd.Nothing => IO.print(s"${currentConsole.prompt} ") >> IO.readLine.map(currentConsole.parseCallback)
       case Cmd.AdvanceSolver => IO(AdvanceSolver)
-      case Cmd.SetWordlist(filename) => WordlistReader.read(filename).map(ws => SetWordlistResult(ws.toIndexedSeq))
-      case Cmd.SetAnswers(filename) => AnswerListReader.read(filename).map(SetAnswerListResult.apply)
+      case Cmd.SetWordlist(filename) => WordlistReader.read(filename)
+        .redeem(t => Msg.Invalid(t.toString), ws => SetWordlistResult(ws.toIndexedSeq))
+      case Cmd.SetAnswers(filename) => AnswerListReader.read(filename)
+        .redeem(t => Msg.Invalid(t.toString), SetAnswerListResult.apply)
       case Cmd.SetResultMap => ResultCacheBuilder.resultLookup(model.resultsCache.wordMapping).map(SetResultMap.apply)
     }
     val outMsg = currentConsole.outputMsg
