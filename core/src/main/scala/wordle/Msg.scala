@@ -19,11 +19,7 @@ object Msg {
 
   case object ClearAnswerList extends Msg
 
-  final case class SetWeightedAnswerList(filename: Option[String]) extends Msg
-
   final case class SetAnswerListResult(validAnswers: Seq[String]) extends Msg
-
-  final case class SetWeightedAnswerListResult(weightedAnswers: Seq[String]) extends Msg
 
   case object AdvanceSolver extends Msg
 
