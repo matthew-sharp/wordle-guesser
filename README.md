@@ -11,7 +11,7 @@ A Wordle guessing interactive command line application. Features include:
 
 ### Requirements
 
-* Java 15 or later (download a JRE from https://adoptium.net/ if you don't know what this means).
+* Java 13 or later (download a JRE from https://adoptium.net/ if you don't know what this means).
 * In addition to the downloaded zip, it will need around 90MB of disk space to store precalculated results.
 
 ### Steps
