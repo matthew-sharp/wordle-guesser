@@ -12,7 +12,7 @@ trait FileLineReader(defaultName: String) {
       case (None, Some(r)) => Resource.fromAutoCloseable(IO.blocking(Source.fromResource(r)))
       case _ => Resource.raiseError[IO, Source, Throwable](
         new IllegalArgumentException("Either file name or resource name must be specified"))
-    wordsSource.use(source => IO(source.getLines().toSeq))
+    wordsSource.use(source => IO.blocking(source.getLines().toSeq))
   }
 
   def read(filename: Option[String]): IO[Seq[String]] = read(filename, Some(defaultName))
