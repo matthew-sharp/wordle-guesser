@@ -13,7 +13,7 @@ case class InteractiveSolver(scorer: Scorer, pruner: Pruner) extends Solver(scor
 
     val guessScore = model.resultsCache.wordMapping.indices.par.map(g =>
       (g, model.boards.filter(b => !b.isSolved).map(b =>
-        boardScorers(b)(g, model.guessNum)).sum
+        boardScorers(b)(g, model.guessNum).score).sum
       )
     ).seq.toMap
 
