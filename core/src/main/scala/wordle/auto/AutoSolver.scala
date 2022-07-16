@@ -14,9 +14,9 @@ case class AutoSolver(
   override def prepGuesses(model: Model): (Model, Cmd) = {
     val boardScorers = generateBoardScorers(model)
     
-    val candidateWord = model.resultsCache.wordMapping.indices.par.maxBy { candidate =>
+    val candidateWord = model.resultsCache.wordMapping.indices.par.minBy { candidate =>
       model.boards.map(b =>
-        boardScorers(b)(candidate, model.guessNum)
+        boardScorers(b)(candidate, model.guessNum).score
       ).sum
     }
     val candidateString = model.resultsCache.wordMapping(candidateWord)

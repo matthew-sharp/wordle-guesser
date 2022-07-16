@@ -22,7 +22,7 @@ trait Solver(scorer: Scorer, pruner: Pruner) {
 
   def solved(model: Model): String = ""
 
-  protected def generateBoardScorers(model: Model): Map[Board, (Word, Int) => Double] = {
+  protected def generateBoardScorers(model: Model): Map[Board, (Word, Int) => ScoreInfo] = {
     val unsolvedBoards = model.boards.filter(b => !b.isSolved)
     model.validAnswers match
       case Some(w: Map[_, _]) => unsolvedBoards.map(b => {
