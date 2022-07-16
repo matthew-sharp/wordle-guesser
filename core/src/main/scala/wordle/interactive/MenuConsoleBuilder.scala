@@ -7,7 +7,7 @@ import wordle.util.TopN
 import scala.collection.mutable
 
 object MenuConsoleBuilder {
-  def apply(model: Model, guessScore: Map[Word, Double]): (Model, Cmd) = {
+  def apply(model: Model, guessScoreInfo: Map[Word, Seq[ScoreInfo]]): (Model, Cmd) = {
     def menuPrompt(menu: Seq[((Word, Double, String), Int)]): String = {
       val sb = mutable.StringBuilder(s"${menu.size} best words:\n")
       menu.foreach(i =>
@@ -17,6 +17,7 @@ object MenuConsoleBuilder {
       sb.toString
     }
 
+    val guessScore = guessScoreInfo.view.mapValues(_.map(_.score).sum).toMap
     val topWords = TopN(guessScore, 10).takeWhile(guessScore(_) > 0)
     val menu = topWords.map(w => (
       w, guessScore(w),
