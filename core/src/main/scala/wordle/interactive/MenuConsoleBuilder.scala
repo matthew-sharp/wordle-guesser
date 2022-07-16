@@ -27,7 +27,11 @@ object MenuConsoleBuilder {
     }
 
     val guessScore = guessScoreInfo.view.mapValues(_.map(_.score).sum).toMap
-    val topWords = TopN(guessScore, 10).takeWhile(guessScore(_) > 0)
+    val topWords = TopN(guessScore, 10).filter{w =>
+      val scoreInfo = guessScoreInfo(w)
+      scoreInfo.map(_.probability).exists(_ > 0) ||
+        scoreInfo.map(_.rawScore).exists(_ > 0)
+    }
     val menu = topWords.map(w => (
       w, guessScoreInfo(w),
       if (model.boards.size == 1 && !model.boards.head.currentlyPossibleAnswers.contains(w)) "*" else "")).zipWithIndex
