@@ -1,6 +1,6 @@
 name := "wordle"
 
-version := "1.0.0"
+ThisBuild / version := "1.0.0"
 
 ThisBuild / scalaVersion := "3.1.3"
 
@@ -21,6 +21,7 @@ lazy val core = (project in file("core"))
     Universal / javaOptions ++= Seq(
       "-J-Xmx2g"
     ),
+    Universal / packageName := s"wordle-${version.value}",
     Compile / run / mainClass := Some("wordle.InteractiveApp"),
   )
 
