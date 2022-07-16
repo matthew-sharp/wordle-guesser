@@ -23,6 +23,7 @@ lazy val core = (project in file("core"))
     ),
     Universal / packageName := s"wordle-${version.value}",
     Compile / run / mainClass := Some("wordle.InteractiveApp"),
+    assembly / mainClass := Some("wordle.InteractiveApp"),
   )
 
 lazy val weightList = (project in file("weight-list"))
