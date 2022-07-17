@@ -24,7 +24,7 @@ class TopNSpec extends AnyFlatSpec with should.Matchers {
       5 -> 5968.5
     )
 
-    val expected = List(3, 2, 5)
+    val expected = List(1, 4, 5)
 
     val res = TopN(xs, 3)
 
@@ -36,9 +36,9 @@ class TopNSpec extends AnyFlatSpec with should.Matchers {
       1 -> 4.51,
       2 -> 56.1,
     )
-    val expected = List(2)
+    val expected = List(1, 2)
 
-    val res = TopN(xs, 1)
+    val res = TopN(xs, 3)
 
     res should contain theSameElementsInOrderAs expected
   }
