@@ -11,8 +11,10 @@ case class InteractiveSolver(scorer: Scorer, pruner: Pruner) extends Solver(scor
   def prepGuesses(model: Model): (Model, Cmd) = {
     val boardScorers = generateBoardScorers(model)
 
+    val unsolvedBoards = model.boards.filter(b => !b.isSolved)
+    
     val guessScore = model.resultsCache.wordMapping.indices.par.map(g =>
-      (g, model.boards.filter(b => !b.isSolved).map(b =>
+      (g, unsolvedBoards.map(b =>
         boardScorers(b)(g, model.guessNum)
       ))
     ).seq.toMap
