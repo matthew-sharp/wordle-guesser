@@ -12,14 +12,13 @@ case class EntropyScorer(resultsCache: CachedResults,
                          remainingValidWords: Map[Word, Double],
                         ) extends Scorer with WeightedScorer {
   private val log2 = MemoizedLog(2)
-  private val totalWordCount = resultsCache.wordMapping.size
   inline private val entropyPerGuessFactor = 12.6 / 3
 
   inline def score(validAnswers: BitSet)(candidate: Word, guessNum: Int): ScoreInfo = {
     val totalGuesses = validAnswers.size
     val totalLog = MemoizedLog(totalGuesses)
     val numByResult = validAnswers.toSeq
-      .map(wordId => resultsCache.resultLookup(candidate * totalWordCount + wordId))
+      .map(wordId => resultsCache.getResult(candidate, wordId))
       .groupMapReduce(identity)(_ => 1)(_ + _).values
     val probIsAnswer =
       if (validAnswers.contains(candidate)) 1.0 / totalGuesses
@@ -46,7 +45,7 @@ case class EntropyScorer(resultsCache: CachedResults,
 
   inline def weightedScore(candidate: Word, guessNum: Int): ScoreInfo = {
     val weightByResult = remainingValidWords.toSeq
-      .map((wordId, weight) => (resultsCache.resultLookup(candidate * totalWordCount + wordId), weight))
+      .map((wordId, weight) => (resultsCache.getResult(candidate, wordId), weight))
       .groupMapReduce(_._1)(_._2)(_ + _).values
     val probIsAnswer = remainingValidWords.get(candidate) match
       case Some(weight) =>
