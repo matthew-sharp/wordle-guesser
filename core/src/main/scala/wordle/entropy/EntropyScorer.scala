@@ -12,7 +12,7 @@ case class EntropyScorer(resultsCache: CachedResults,
                          remainingValidWords: Map[Word, Double],
                         ) extends Scorer with WeightedScorer {
   private val log2 = MemoizedLog(2)
-  inline private val entropyPerGuessFactor = 12.6 / 3
+  inline private val entropyPerGuessFactor = 11.0 / 3
 
   inline def score(validAnswers: BitSet)(candidate: Word, guessNum: Int): ScoreInfo = {
     val totalGuesses = validAnswers.size
