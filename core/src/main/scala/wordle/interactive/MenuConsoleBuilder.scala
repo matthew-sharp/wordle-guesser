@@ -15,7 +15,9 @@ object MenuConsoleBuilder {
         val scoreInfo = i._1._2
         val totalScore = scoreInfo.map(_.score).sum
         val infoSuffix = if scoreInfo.size >1 then
-          f"$totalScore%.6f"
+          val maxProb = scoreInfo.map(_.probability).max
+          val totalScore = scoreInfo.map(_.rawScore).sum
+          f"$totalScore%.6f\t${maxProb*100}%.2f%%\t$totalScore%.6f"
         else {
           val si = scoreInfo.head
           f"$totalScore%.6f\t${si.probability*100}%.2f%%\t${si.rawScore}%.6f"
