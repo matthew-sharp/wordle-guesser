@@ -14,4 +14,6 @@ object Cmd {
   case object SetResultMap extends Cmd
 
   case object AdvanceSolver extends Cmd
+  
+  final case class GetSolveTargets(filename: String) extends Cmd
 }

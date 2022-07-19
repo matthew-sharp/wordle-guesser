@@ -7,15 +7,18 @@ import wordle.update.StartSolveCommon
 import wordle.util.LookupPruner
 
 object StartAutoSolve {
-  def apply(model: Model, answer: String): (Model, Cmd) = {
-    val ansIdx = model.resultsCache.reverseWordMapping.get(answer)
+  def apply(model: Model, answer: Option[String]): (Model, Cmd) = {
+    val (updatedModel, ansString) = answer match
+      case Some(ans) => (model, ans)
+      case None => (model.copy(queuedSolves = model.queuedSolves.tail), model.queuedSolves.head)
+    val ansIdx = model.resultsCache.reverseWordMapping.get(ansString)
     ansIdx.map { answer =>
       AutoSolver(
         answer = answer,
         scorer = EntropyScorer(model.resultsCache),
         pruner = LookupPruner(model.resultsCache),
       )
-    }.map(solver => StartSolveCommon(model, solver, 1))
-      .getOrElse((model.setOutputMsg(s"$answer not in master wordlist"), Cmd.Nothing))
+    }.map(solver => StartSolveCommon(updatedModel, solver, 1))
+      .getOrElse((updatedModel.setOutputMsg(s"$answer not in master wordlist"), Cmd.Nothing))
   }
 }

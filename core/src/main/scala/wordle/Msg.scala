@@ -23,5 +23,7 @@ object Msg {
 
   case object AdvanceSolver extends Msg
 
-  final case class AutoSolve(answer: String) extends Msg
+  final case class AutoSolve(answer: Option[String]) extends Msg
+  
+  final case class QueueAutoSolveTargets(solves: Seq[String]) extends Msg
 }

@@ -7,27 +7,50 @@ import wordle.Msg.*
 import wordle.auto.StartAutoSolve
 import wordle.entropy.ResultCacheBuilder
 import wordle.interactive.{InteractiveMenuParser, InteractiveUpdate, StartInteractiveSolve}
-import wordle.io.{AnswerListReader, WordlistReader}
+import wordle.io.{AnswerListReader, FileLineReader, WordlistReader}
 import wordle.model.*
 import wordle.parser.TopLevelParser
 import wordle.update.*
 
+import scala.annotation.tailrec
 import scala.collection.immutable.{BitSet, Queue}
-import scala.util.{Success, Try}
 
 object InteractiveApp extends IOApp {
   def quit(msg: Msg): Boolean = msg == Quit
 
-  def init(): (Model, Cmd) = {
+  def init(args: List[String]): (Model, Cmd) = {
+    @tailrec
+    def parseArgs(parsed: Map[String, Any], remaining: List[String], msgs: Seq[String]): (Map[String, Any], Seq[String]) = {
+      remaining match
+        case Nil => (parsed, msgs)
+        case ("-s" | "--solve-file") :: filename :: tail =>
+          parseArgs(parsed ++ Map("solveFile" -> Some(filename)), tail, msgs)
+        case unknown :: tail =>
+          parseArgs(parsed, tail, msgs :+ s"skipping unknown argument $unknown")
+    }
+    val (clConf, msgs) = parseArgs(Map(), args, Seq.empty[String])
+
+    val defaultConf = Map(
+      "solveFile" -> None,
+    )
+
+    val conf = defaultConf ++ clConf
+
+    val queuedAutoSolveCmd = conf("solveFile").asInstanceOf[Option[String]].map(Cmd.GetSolveTargets.apply)
+    val initialCmds = Seq[Option[Cmd]](
+      Some(Cmd.SetAnswers(None)),
+      queuedAutoSolveCmd,
+    ).flatten
+
     (Model(
+      batchMode = queuedAutoSolveCmd.isDefined,
       List(Console(
-        outputMsg = "",
+        outputMsg = msgs.mkString("\n"),
         prompt = ">",
         parseCallback = TopLevelParser.parse,
       )),
-      queuedCmds = Queue[Cmd](
-        Cmd.SetAnswers(None)
-      ),
+      queuedCmds = Queue.from(initialCmds),
+      queuedSolves = List.empty[String],
       resultsCache = null,
       validAnswers = None,
       solver = null,
@@ -51,6 +74,7 @@ object InteractiveApp extends IOApp {
       case SetAnswerListResult(answers) => Some(UpdateAnswerList(model, answers))
       case AdvanceSolver => Some(AdvanceSolverUpd(model))
       case AutoSolve(answer) => Some(StartAutoSolve(model, answer))
+      case QueueAutoSolveTargets(solves) => Some(model.copy(queuedSolves = model.queuedSolves ++ solves), Cmd.Nothing)
       case _ => None
     }
   }
@@ -77,20 +101,27 @@ object InteractiveApp extends IOApp {
   def io(model: Model, cmd: Cmd): IO[Msg] = {
     val currentConsole = model.consoles.head
     val cmdIo = cmd match {
-      case Cmd.Nothing => IO.print(s"${currentConsole.prompt} ") >> IO.readLine.map(currentConsole.parseCallback)
+      case Cmd.Nothing =>
+        model.queuedSolves match
+          case Nil =>
+            if (model.batchMode) IO(Msg.Quit)
+            else IO.print(s"${currentConsole.prompt} ") >> IO.readLine.map(currentConsole.parseCallback)
+          case _ => IO(Msg.AutoSolve(None))
       case Cmd.AdvanceSolver => IO(AdvanceSolver)
       case Cmd.SetWordlist(filename) => WordlistReader.read(filename)
         .redeem(t => Msg.Invalid(t.toString), ws => SetWordlistResult(ws.toIndexedSeq))
       case Cmd.SetAnswers(filename) => AnswerListReader.read(filename)
         .redeem(t => Msg.Invalid(t.toString), SetAnswerListResult.apply)
       case Cmd.SetResultMap => ResultCacheBuilder.resultLookup(model.resultsCache.wordMapping).map(SetResultMap.apply)
+      case Cmd.GetSolveTargets(filename) => FileLineReader().read(filename)
+      .redeem(t => Msg.Invalid(t.toString), Msg.QueueAutoSolveTargets.apply)
     }
     val outMsg = currentConsole.outputMsg
     (if (outMsg.isEmpty) IO.unit else IO.println(outMsg)) >> cmdIo
   }
 
   override def run(args: List[String]): IO[ExitCode] = {
-    val (initialModel, initialCmd) = init()
+    val (initialModel, initialCmd) = init(args)
     val app = StateT[IO, (Model, Cmd), Msg] {
       case (model, cmd) =>
         io(model, cmd).map { msg =>

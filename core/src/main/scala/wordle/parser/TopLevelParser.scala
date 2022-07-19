@@ -14,7 +14,7 @@ object TopLevelParser {
     .map((_, num) => MsgInteractive.InteractiveSolve(num))
   private val intSolve: Parser[Msg] = (string("int") | string("interactive-solve")) >| MsgInteractive.InteractiveSolve(1)
   private val autoSolve: Parser[Msg] = (string("as") | string("auto-solve")) ~> skipWhitespace ~> take(5)
-    .map(w => Msg.AutoSolve(w))
+    .map(w => Msg.AutoSolve(Some(w)))
   private val ansList: Parser[Msg] = ((string("al") | string("answer-list")) ~ (skipWhitespace ~> takeText))
     .map((_, filename) => filename match
       case "" => Msg.SetAnswerList(None)
