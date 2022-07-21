@@ -25,6 +25,8 @@ object InteractiveApp extends IOApp {
         case Nil => (parsed, msgs)
         case ("-s" | "--solve-file") :: filename :: tail =>
           parseArgs(parsed ++ Map("solveFile" -> Some(filename)), tail, msgs)
+        case ("-al" | "--answer-list") :: filename :: tail =>
+          parseArgs(parsed ++ Map("answerList" -> Some(filename)), tail, msgs)
         case unknown :: tail =>
           parseArgs(parsed, tail, msgs :+ s"skipping unknown argument $unknown")
     }
@@ -32,13 +34,14 @@ object InteractiveApp extends IOApp {
 
     val defaultConf = Map(
       "solveFile" -> None,
+      "answerList" -> None,
     )
 
     val conf = defaultConf ++ clConf
 
     val queuedAutoSolveCmd = conf("solveFile").asInstanceOf[Option[String]].map(Cmd.GetSolveTargets.apply)
     val initialCmds = Seq[Option[Cmd]](
-      Some(Cmd.SetAnswers(None)),
+      Some(Cmd.SetAnswers(conf("answerList").asInstanceOf[Option[String]])),
       queuedAutoSolveCmd,
     ).flatten
 
