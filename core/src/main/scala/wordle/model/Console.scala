@@ -14,7 +14,15 @@ case class Console(
                   )
 
 extension (m: Model) {
-  def setOutputMsg(outMsg: String): Model = {
+  def setOutputMsgIfNotBatch(outMsg: String): Model = {
+    if m.batchMode then m
+    else {
+      val newTopCon = m.consoles.head.copy(outputMsg = outMsg)
+      m.copy(consoles = newTopCon :: m.consoles.tail)
+    }
+  }
+  
+  def setOutputMsgEvenIfBatch(outMsg: String): Model = {
     val newTopCon = m.consoles.head.copy(outputMsg = outMsg)
     m.copy(consoles = newTopCon :: m.consoles.tail)
   }

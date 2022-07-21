@@ -64,10 +64,10 @@ object InteractiveApp extends IOApp {
   private def updateCore(msg: Msg, model: Model): Option[(Model, Cmd)] = {
     msg match {
       case Quit => Some((model, Cmd.Nothing))
-      case Invalid(failMsg) => Some((model.setOutputMsg(s"Invalid input: $failMsg"), Cmd.Nothing))
+      case Invalid(failMsg) => Some((model.setOutputMsgIfNotBatch(s"Invalid input: $failMsg"), Cmd.Nothing))
       case SetWordlist(filename) => Some((model, Cmd.SetWordlist(filename)))
       case SetWordlistResult(words) => Some(UpdateWordlist(model, words))
-      case SetResultMap(result) => Some((model.setOutputMsg("Precalculated results read")
+      case SetResultMap(result) => Some((model.setOutputMsgIfNotBatch("Precalculated results read")
         .copy(resultsCache = result), Cmd.Nothing))
       case SetAnswerList(filename) => Some((model, Cmd.SetAnswers(filename)))
       case ClearAnswerList => Some((model.copy(validAnswers = None), Cmd.Nothing))
@@ -125,7 +125,7 @@ object InteractiveApp extends IOApp {
     val app = StateT[IO, (Model, Cmd), Msg] {
       case (model, cmd) =>
         io(model, cmd).map { msg =>
-          val (updatedModel, newCmd) = update(msg, model.setOutputMsg(""))
+          val (updatedModel, newCmd) = update(msg, model.setOutputMsgEvenIfBatch(""))
           ((updatedModel, newCmd), msg)
         }
     }

@@ -2,7 +2,7 @@ package wordle.auto
 
 import wordle.Cmd
 import wordle.entropy.EntropyScorer
-import wordle.model.{Model, setOutputMsg}
+import wordle.model.{Model, setOutputMsgIfNotBatch}
 import wordle.update.StartSolveCommon
 import wordle.util.LookupPruner
 
@@ -17,8 +17,9 @@ object StartAutoSolve {
         answer = answer,
         scorer = EntropyScorer(model.resultsCache),
         pruner = LookupPruner(model.resultsCache),
+        quietMode = model.batchMode,
       )
     }.map(solver => StartSolveCommon(updatedModel, solver, 1))
-      .getOrElse((updatedModel.setOutputMsg(s"$answer not in master wordlist"), Cmd.Nothing))
+      .getOrElse((updatedModel.setOutputMsgIfNotBatch(s"$answer not in master wordlist"), Cmd.Nothing))
   }
 }

@@ -1,7 +1,7 @@
 package wordle.update
 
 import wordle.Cmd
-import wordle.model.{Model, setOutputMsg}
+import wordle.model.{Model, setOutputMsgIfNotBatch}
 
 import scala.collection.immutable.BitSet
 
@@ -17,7 +17,7 @@ object UpdateAnswerList {
   }
 
   private def setUnweightedAnswers(model: Model, lines: Seq[String]): Model = {
-    model.setOutputMsg(s"${lines.size} answers read")
+    model.setOutputMsgIfNotBatch(s"${lines.size} answers read")
       .copy(validAnswers = Some(BitSet.fromSpecific(lines.map(model.resultsCache.reverseWordMapping))))
   }
 
@@ -25,7 +25,7 @@ object UpdateAnswerList {
     val weightMap = lines.map(_.split("[\t ]+"))
       .map(w => (model.resultsCache.reverseWordMapping(w(0)), w(1).toDouble))
       .toMap
-    model.setOutputMsg(s"${lines.size} answers with weights read")
+    model.setOutputMsgIfNotBatch(s"${lines.size} answers with weights read")
       .copy(validAnswers = Some(weightMap))
   }
 }

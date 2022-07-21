@@ -11,7 +11,7 @@ object UpdateWordlist {
         words,
         Map.empty[String, Word]
       ),
-    ).setOutputMsg(s"${words.size} words read"),
+    ).setOutputMsgIfNotBatch(s"${words.size} words read"),
       Cmd.SetResultMap)
   }
 }
