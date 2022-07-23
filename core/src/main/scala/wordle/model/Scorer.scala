@@ -28,7 +28,7 @@ case class ScoreInfo(
                     rawScore: Double,
                     estimatedRemainingEffort: Double,
                     ) {
-  def score: Double = {
+  inline def score: Double = {
     probability + (1 - probability) * (1 + estimatedRemainingEffort)
   }
 }
