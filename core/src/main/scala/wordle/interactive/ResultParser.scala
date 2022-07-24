@@ -12,7 +12,7 @@ import wordle.Msg
 import wordle.model.ConstraintType
 
 object ResultParser {
-  val result: Parser[List[Char]] = manyN(1, char('q'))
+  val result: Parser[Any] = string("q") | string("fq")
     | manyN(5, choice(ConstraintType.values.toList.map(cns => char(cns.c))))
 
   def parse(boardNum: Int)(input: String): Msg = {
@@ -20,7 +20,8 @@ object ResultParser {
       .done
       .either
       .flatMap {
-        case 'q' :: Nil => Either.left("!abort")
+        case "q" => Either.left("!abort")
+        case "fq" => Either.left("!quit")
         case chars: List[Char] => chars.map(c =>
           ConstraintType.values.find(cns => cns.c == c)
             .fold(Either.left(s"'$c' not a valid result part'"))(Either.right)
@@ -29,6 +30,7 @@ object ResultParser {
       .map(cons => MsgInteractive.SetResult(cons, boardNum))
       .leftMap(l => l match
         case "!abort" => MsgInteractive.Abort
+        case "!quit" => Msg.Quit
         case err => Msg.Invalid(err)
       )
       .merge
