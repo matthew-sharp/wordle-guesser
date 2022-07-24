@@ -21,9 +21,12 @@ case class AutoSolver(
       ).sum
     }
     val candidateString = model.resultsCache.wordMapping(candidateWord)
-    val annotation = if model.boards.size == 1 &&
-      !model.boards.head.currentlyPossibleAnswers.contains(candidateWord) then "*" else ""
-    (model.setOutputMsgIfNotBatch(s"selecting guess: \"$candidateString\"$annotation")
+    val prob = if model.boards.size == 1 then {
+      val candidateProb = boardScorers.head._2(candidateWord, model.guessNum).probability
+      f"${candidateProb*100}%.2f%%"
+    }
+    else "0.00%"
+    (model.setOutputMsgIfNotBatch(s"selecting guess: \"$candidateString\" ($prob)")
       .copy(currentGuess = candidateWord), Cmd.AdvanceSolver)
   }
 
