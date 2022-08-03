@@ -7,7 +7,7 @@ trait FlatScorer {
 }
 
 trait WeightedScorer {
-  def prepWeightedScoringRound(remainingValidWords: Map[Word, Double]): WeightedScorer
+  def prepWeightedScoringRound(remainingValidWords: IArray[(Word, Double)]): WeightedScorer
 
   def weightedScore(candidate: Word, guessNum: Int): ScoreInfo
 }

@@ -9,7 +9,7 @@ case class EntropyScorer(resultsCache: CachedResults,
                          totalWeight: Double,
                          logTotalWeight: Double,
                          startingEntropy: Double,
-                         remainingValidWords: Map[Word, Double],
+                         remainingValidWords: IArray[(Word, Double)],
                         ) extends Scorer with WeightedScorer {
   private val log2 = MemoizedLog(2)
   inline private val entropyPerGuessFactor = 11.0 / 3
@@ -17,7 +17,7 @@ case class EntropyScorer(resultsCache: CachedResults,
   inline def score(validAnswers: BitSet)(candidate: Word, guessNum: Int): ScoreInfo = {
     val totalGuesses = validAnswers.size
     val totalLog = MemoizedLog(totalGuesses)
-    val numByResult = validAnswers.toSeq
+    val numByResult = validAnswers.toArray
       .map(wordId => resultsCache.getResult(candidate, wordId))
       .groupMapReduce(identity)(_ => 1)(_ + _).values
     val probIsAnswer =
@@ -31,24 +31,24 @@ case class EntropyScorer(resultsCache: CachedResults,
       estimatedRemainingEffort = 1 + (totalLog / log2 - entropy) / entropyPerGuessFactor)
   }
 
-  def prepWeightedScoringRound(remainingValidWords: Map[Word, Double]): EntropyScorer = {
-    val totalWeight = remainingValidWords.values.sum
+  def prepWeightedScoringRound(remainingValidWords: IArray[(Word, Double)]): EntropyScorer = {
+    val totalWeight = remainingValidWords.map(_._2).sum
     val logTotalWeight = Math.log(totalWeight)
-    val startingEntropy = (logTotalWeight - (remainingValidWords.values.map(w => w * Math.log(w)).sum / totalWeight)) / log2
+    val startingEntropy = (logTotalWeight - (remainingValidWords.map((_, w) => w * Math.log(w)).sum / totalWeight)) / log2
     this.copy(
       totalWeight = totalWeight,
       logTotalWeight = logTotalWeight,
       startingEntropy = startingEntropy,
-      remainingValidWords = remainingValidWords,
+      remainingValidWords = IArray.from(remainingValidWords),
     )
   }
 
   inline def weightedScore(candidate: Word, guessNum: Int): ScoreInfo = {
-    val weightByResult = remainingValidWords.toSeq
+    val weightByResult = remainingValidWords
       .map((wordId, weight) => (resultsCache.getResult(candidate, wordId), weight))
       .groupMapReduce(_._1)(_._2)(_ + _).values
-    val probIsAnswer = remainingValidWords.get(candidate) match
-      case Some(weight) =>
+    val probIsAnswer = remainingValidWords.find(_._1 == candidate) match
+      case Some((_, weight)) =>
         if (remainingValidWords.size <= 1) 1
         else weight / totalWeight
       case None => 0
@@ -63,5 +63,5 @@ case class EntropyScorer(resultsCache: CachedResults,
 }
 
 object EntropyScorer {
-  def apply(results: CachedResults): EntropyScorer = EntropyScorer(results, 0, 0, 0, Map.empty[Word, Double])
+  def apply(results: CachedResults): EntropyScorer = EntropyScorer(results, 0, 0, 0, IArray.empty[(Word, Double)])
 }

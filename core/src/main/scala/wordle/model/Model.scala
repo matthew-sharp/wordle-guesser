@@ -10,7 +10,7 @@ case class Model(
                   queuedCmds: Queue[Cmd],
                   queuedSolves: List[String],
                   resultsCache: CachedResults,
-                  validAnswers: Option[BitSet | Map[Word, Double]],
+                  validAnswers: Option[BitSet | IArray[(Word, Double)]],
                   solver: Solver,
                   state: SolverState,
                   currentGuess: Word,

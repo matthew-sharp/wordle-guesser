@@ -24,8 +24,7 @@ object UpdateAnswerList {
   private def setWeightedAnswers(model: Model, lines: Seq[String]): Model = {
     val weightMap = lines.map(_.split("[\t ]+"))
       .map(w => (model.resultsCache.reverseWordMapping(w(0)), w(1).toDouble))
-      .toMap
     model.setOutputMsgIfNotBatch(s"${lines.size} answers with weights read")
-      .copy(validAnswers = Some(weightMap))
+      .copy(validAnswers = Some(IArray.from(weightMap)))
   }
 }

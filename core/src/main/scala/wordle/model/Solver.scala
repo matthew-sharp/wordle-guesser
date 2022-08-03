@@ -25,9 +25,9 @@ trait Solver(scorer: Scorer, pruner: Pruner) {
   protected def generateBoardScorers(model: Model): Map[Board, (Word, Int) => ScoreInfo] = {
     val unsolvedBoards = model.boards.filter(b => !b.isSolved)
     model.validAnswers match
-      case Some(w: Map[_, _]) => unsolvedBoards.map(b => {
-        val validWeights = w.asInstanceOf[Map[Word, Double]].view.filterKeys(b.currentlyPossibleAnswers.contains)
-        val preppedScorer = scorer.prepWeightedScoringRound(validWeights.to(Map))
+      case Some(w: IArray[(_, _)]) => unsolvedBoards.map(b => {
+        val validWeights = w.asInstanceOf[IArray[(Word, Double)]].filter((word, _) => b.currentlyPossibleAnswers.contains(word))
+        val preppedScorer = scorer.prepWeightedScoringRound(validWeights)
         (b, preppedScorer.weightedScore)
       }).toMap
       case _ => unsolvedBoards.map(b => (b, scorer.score(b.currentlyPossibleAnswers))).toMap
