@@ -10,7 +10,11 @@ case class EntropyScorer(resultsCache: CachedResults,
                          remainingValidWords: IArray[(Word, Double)],
                         ) extends Scorer with WeightedScorer {
   private val log2 = MemoizedLog(2)
-  inline private val entropyPerGuessFactor = 11.0 / 3
+  /**
+   * Tuning this value higher will make the scorer favour trying to guess the answer rather than look for entropy
+   * Tuning this value lower will make the scorer favour more information until it is certain of the answer
+   */
+  inline private val entropyPerGuessFactor = 13.0 / 4
 
   inline def score(validAnswers: IArray[Word])(candidate: Word, guessNum: Int): ScoreInfo = {
     val totalGuesses = validAnswers.size
