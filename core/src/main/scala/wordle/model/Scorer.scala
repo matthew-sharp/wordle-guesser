@@ -1,9 +1,7 @@
 package wordle.model
 
-import scala.collection.immutable.BitSet
-
 trait FlatScorer {
-  def score(remainingValidWords: BitSet)(candidate: Word, guessNum: Int): ScoreInfo
+  def score(remainingValidWords: IArray[Word])(candidate: Word, guessNum: Int): ScoreInfo
 }
 
 trait WeightedScorer {

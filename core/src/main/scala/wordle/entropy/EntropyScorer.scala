@@ -3,8 +3,6 @@ package wordle.entropy
 import wordle.model.*
 import wordle.util.MemoizedLog
 
-import scala.collection.immutable.BitSet
-
 case class EntropyScorer(resultsCache: CachedResults,
                          totalWeight: Double,
                          logTotalWeight: Double,
@@ -14,10 +12,10 @@ case class EntropyScorer(resultsCache: CachedResults,
   private val log2 = MemoizedLog(2)
   inline private val entropyPerGuessFactor = 11.0 / 3
 
-  inline def score(validAnswers: BitSet)(candidate: Word, guessNum: Int): ScoreInfo = {
+  inline def score(validAnswers: IArray[Word])(candidate: Word, guessNum: Int): ScoreInfo = {
     val totalGuesses = validAnswers.size
     val totalLog = MemoizedLog(totalGuesses)
-    val numByResult = validAnswers.toArray
+    val numByResult = validAnswers
       .map(wordId => resultsCache.getResult(candidate, wordId))
       .groupMapReduce(identity)(_ => 1)(_ + _).values
     val probIsAnswer =
