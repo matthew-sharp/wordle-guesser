@@ -12,8 +12,9 @@ object WeightsApp extends IOApp {
     val mid = args(0).toInt
     val gradient = args(1).toDouble
     for {
-      validWords <- AnswerListReader.read(None)
-      freqSortedWords <- IO.blocking(Source.fromInputStream(System.in).getLines().toList.reverse)
+      previousAnswerLines <- AnswerListReader.read(None)
+      validWords = previousAnswerLines.map(_.split("[\t ]+").head)
+      freqSortedWords <- IO.blocking(Source.fromInputStream(System.in).getLines().toList)
       validFreqSortedWords = freqSortedWords.filter(validWords.toSet.contains)
       weightedWords = Sigmoid(mid, gradient)(validFreqSortedWords)
       _ <- weightedWords.toList.map((word, weight) => IO.println(s"$word\t$weight")).sequence
