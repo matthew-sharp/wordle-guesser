@@ -4,7 +4,7 @@ import wordle.Cmd
 import wordle.model.*
 
 object AdvanceSolverUpd {
-  def apply(model: Model): (Model, Cmd) = {
+  def apply[T <: Solver[T]](model: Model[T]): (Model[_], Cmd) = {
     val solver = model.solver
     model.state match {
       case SolverState.Inactive => (model.setOutputMsgIfNotBatch(solver.preStats(model))

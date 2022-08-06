@@ -4,7 +4,7 @@ import wordle.Cmd
 
 import scala.collection.immutable.{BitSet, Queue}
 
-case class Model[TSolver <: Solver](
+case class Model[TSolver <: Solver[TSolver]](
                   batchMode: Boolean, 
                   consoles: List[Console],
                   queuedCmds: Queue[Cmd],

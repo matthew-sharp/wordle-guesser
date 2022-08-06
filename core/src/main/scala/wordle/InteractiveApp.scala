@@ -6,7 +6,7 @@ import cats.implicits.*
 import wordle.Msg.*
 import wordle.auto.StartAutoSolve
 import wordle.entropy.ResultCacheBuilder
-import wordle.interactive.{InteractiveMenuParser, InteractiveUpdate, StartInteractiveSolve}
+import wordle.interactive.{InteractiveMenuParser, InteractiveSolver, InteractiveUpdate, StartInteractiveSolve}
 import wordle.io.{AnswerListReader, FileLineReader, WordlistReader}
 import wordle.model.*
 import wordle.parser.TopLevelParser
@@ -18,7 +18,7 @@ import scala.collection.immutable.{BitSet, Queue}
 object InteractiveApp extends IOApp {
   def quit(msg: Msg): Boolean = msg == Quit
 
-  def init(args: List[String]): (Model, Cmd) = {
+  def init(args: List[String]): (Model[_], Cmd) = {
     @tailrec
     def parseArgs(parsed: Map[String, Any], remaining: List[String], msgs: Seq[String]): (Map[String, Any], Seq[String]) = {
       remaining match
@@ -64,7 +64,7 @@ object InteractiveApp extends IOApp {
     ), Cmd.SetWordlist(None))
   }
 
-  private def updateCore(msg: Msg, model: Model): Option[(Model, Cmd)] = {
+  private def updateCore[T <: Solver[T]](msg: Msg, model: Model[T]): Option[(Model[_], Cmd)] = {
     msg match {
       case Quit => Some((model, Cmd.Nothing))
       case Invalid(failMsg) => Some((model.setOutputMsgIfNotBatch(s"Invalid input: $failMsg"), Cmd.Nothing))
@@ -82,17 +82,21 @@ object InteractiveApp extends IOApp {
     }
   }
 
-  def update(msg: Msg, model: Model): (Model, Cmd) = {
-    def firstMatch(handlers: List[(Msg, Model) => Option[(Model, Cmd)]]): Option[(Model, Cmd)] = {
+  def update[T <: Solver[T]](msg: Msg, model: Model[T]): (Model[_], Cmd) = {
+    type Handler[T <: Solver[T]] = (Msg, Model[T]) => Option[(Model[_], Cmd)]
+
+    def firstMatch(handlers: List[Handler[T]]): Option[(Model[_], Cmd)] = {
       handlers match
         case Nil => None
         case handler :: tail => handler(msg, model).orElse(firstMatch(tail))
     }
 
-    val (interimModel, interimCmd) = firstMatch(List(
-      updateCore,
-      InteractiveUpdate.update,
-    )).get
+    val handlers: List[Handler[T]] = updateCore :: {
+      model match
+        case _: Model[InteractiveSolver] => List[Handler[T]](InteractiveUpdate.update)
+        case _ => List.empty[Handler[T]]
+    }
+    val (interimModel, interimCmd) = firstMatch(handlers).get
     if (interimCmd == Cmd.Nothing) interimModel.queuedCmds.dequeueOption match {
       case Some(nextCmd, stillQueuedCmds) => (interimModel.copy(queuedCmds = stillQueuedCmds), nextCmd)
       case None => (interimModel, interimCmd)
@@ -101,7 +105,7 @@ object InteractiveApp extends IOApp {
     }
   }
 
-  def io(model: Model, cmd: Cmd): IO[Msg] = {
+  def io(model: Model[_], cmd: Cmd): IO[Msg] = {
     val currentConsole = model.consoles.head
     val cmdIo = cmd match {
       case Cmd.Nothing =>
@@ -123,12 +127,17 @@ object InteractiveApp extends IOApp {
     (if (outMsg.isEmpty) IO.unit else IO.println(outMsg)) >> cmdIo
   }
 
+  def setOutputMsgEvenIfBatch[T <: Solver[T]](m: Model[T], outMsg: String): Model[T] = {
+    val newTopCon = m.consoles.head.copy(outputMsg = outMsg)
+    m.copy(consoles = newTopCon :: m.consoles.tail)
+  }
+
   override def run(args: List[String]): IO[ExitCode] = {
     val (initialModel, initialCmd) = init(args)
-    val app = StateT[IO, (Model, Cmd), Msg] {
+    val app = StateT[IO, (Model[_], Cmd), Msg] {
       case (model, cmd) =>
         io(model, cmd).map { msg =>
-          val (updatedModel, newCmd) = update(msg, model.setOutputMsgEvenIfBatch(""))
+          val (updatedModel, newCmd) = update(msg, setOutputMsgEvenIfBatch(model, ""))
           ((updatedModel, newCmd), msg)
         }
     }

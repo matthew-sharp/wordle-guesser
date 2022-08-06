@@ -12,7 +12,7 @@ case class AutoSolver(
                        pruner: Pruner,
                        quietMode: Boolean,
                      ) extends Solver(scorer, pruner) {
-  override def prepGuesses(model: Model): (Model, Cmd) = {
+  override def prepGuesses[T <: Solver[T]](model: Model[T]): (Model[_], Cmd) = {
     val boardScorers = generateBoardScorers(model)
     
     val candidateWord = model.resultsCache.wordMapping.indices.par.minBy { candidate =>
@@ -31,18 +31,18 @@ case class AutoSolver(
   }
 
   // Currently this only supports a single board and will drop all other boards
-  override def mark(model: Model): (Model, Cmd) = {
+  override def mark(model: Model[_]): (Model[_], Cmd) = {
     val cons = LookupMarker.mark(model.resultsCache)(model.currentGuess, answer)
     (model.setOutputMsgIfNotBatch(s"result:           ${ResultUtils.toResultString(cons)}")
       .copy(boards = Seq(model.boards.head.copy(result = cons))), Cmd.AdvanceSolver)
   }
 
 
-  override def solved(model: Model): String = {
+  override def solved(model: Model[_]): String = {
     if quietMode
       then s"${answerString(model)},${model.guessNum}"
       else s"answer \"${answerString(model)}\" found in ${model.guessNum} guesses"
   }
 
-  inline def answerString(model: Model): String = model.resultsCache.wordMapping(answer)
+  inline def answerString(model: Model[_]): String = model.resultsCache.wordMapping(answer)
 }

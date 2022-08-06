@@ -3,13 +3,14 @@ package wordle.model
 import wordle.Cmd
 import wordle.util.ResultUtils
 
-trait Solver(scorer: Scorer, pruner: Pruner) {
+trait Solver[S](scorer: Scorer, pruner: Pruner) {
+  this: S =>
   def preStats(model: Model[_]): String = {
     if (model.boards.size == 1) s"${model.boards.head.currentlyPossibleAnswers.size} possible words remaining"
     else ""
   }
 
-  def prepGuesses(model: Model[_]): (Model[_], Cmd)
+  def prepGuesses(model: Model[S]): (Model[_], Cmd)
 
   def mark(model: Model[_]): (Model[_], Cmd)
 

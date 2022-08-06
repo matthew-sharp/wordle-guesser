@@ -13,6 +13,7 @@ case class Console(
                     conType: ConsoleType = Generic,
                   )
 
+
 extension (m: Model[_]) {
   def setOutputMsgIfNotBatch(outMsg: String): Model[_] = {
     if m.batchMode then m

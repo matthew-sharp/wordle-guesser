@@ -7,7 +7,7 @@ import wordle.update.StartSolveCommon
 import wordle.util.LookupPruner
 
 object StartAutoSolve {
-  def apply(model: Model, answer: Option[String]): (Model, Cmd) = {
+  def apply(model: Model[_], answer: Option[String]): (Model[_], Cmd) = {
     val (updatedModel, ansString) = answer match
       case Some(ans) => (model, ans)
       case None => (model.copy(queuedSolves = model.queuedSolves.tail), model.queuedSolves.head)
