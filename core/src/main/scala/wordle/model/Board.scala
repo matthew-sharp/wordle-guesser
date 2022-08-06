@@ -11,8 +11,8 @@ case class Board(
   def isSolved: Boolean = result.nonEmpty && result.forall(_ == ConstraintType.Position)
 }
 
-extension (m: Model) {
-  def setBoardResult(boardNum: Int)(cons: List[ConstraintType]): Model = {
+extension (m: Model[_]) {
+  def setBoardResult(boardNum: Int)(cons: List[ConstraintType]): Model[_] = {
     val currentBoards = m.boards
     val board = currentBoards(boardNum)
     val newBoard = board.copy(result = cons)

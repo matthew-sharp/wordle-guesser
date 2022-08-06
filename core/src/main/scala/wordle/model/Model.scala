@@ -4,14 +4,14 @@ import wordle.Cmd
 
 import scala.collection.immutable.{BitSet, Queue}
 
-case class Model(
+case class Model[TSolver <: Solver](
                   batchMode: Boolean, 
                   consoles: List[Console],
                   queuedCmds: Queue[Cmd],
                   queuedSolves: List[String],
                   resultsCache: CachedResults,
                   validAnswers: Option[BitSet | IArray[(Word, Double)]],
-                  solver: Solver,
+                  solver: TSolver,
                   state: SolverState,
                   currentGuess: Word,
                   guessNum: Int,

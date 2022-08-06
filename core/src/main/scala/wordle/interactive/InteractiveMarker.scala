@@ -4,7 +4,7 @@ import wordle.Cmd
 import wordle.model.*
 
 object InteractiveMarker {
-  def mark(model: Model): (Model, Cmd) =
+  def mark(model: Model[_]): (Model[_], Cmd) =
     val consoles = model.boards.zipWithIndex.filter((b, _) => !b.isSolved).map((_, idx) =>
       Console(
         outputMsg = s"Result for ${model.resultsCache.wordMapping(model.currentGuess)} on board ${idx + 1}?",

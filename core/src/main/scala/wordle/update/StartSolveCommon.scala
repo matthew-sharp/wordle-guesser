@@ -6,7 +6,7 @@ import wordle.model.*
 import scala.collection.immutable.BitSet
 
 object StartSolveCommon {
-  def apply(model: Model, solver: Solver, numBoards: Int): (Model, Cmd) = {
+  def apply(model: Model[_], solver: Solver, numBoards: Int): (Model[_], Cmd) = {
     (model.copy(
       solver = solver,
       state = SolverState.Inactive,

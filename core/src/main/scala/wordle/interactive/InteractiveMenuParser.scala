@@ -12,6 +12,7 @@ object InteractiveMenuParser {
     | (char('!') ~
     (string("qq")
       | string("q")
+      | (string("sw") ~ (skipWhitespace ~> take(5)))
       ))
     | take(5)
 
@@ -25,6 +26,10 @@ object InteractiveMenuParser {
           case None => Either.left(s"$c not a choice in the menu")
         }
         case ('!', cmd) =>  cmd match {
+          case ("sw", str: String) => invWordLookup.get(str) match {
+            case Some(w) => Either.right(MsgInteractive.ScoreSingleWord(w))
+            case None => Either.left(s"Word \"$str\" is not in the wordlist we know")
+          }
           case "qq" => Either.right(Msg.Quit)
           case "q" => Either.right(MsgInteractive.Abort)
           case x => Either.left(s"Unknown command $x")

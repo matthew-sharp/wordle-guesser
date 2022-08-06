@@ -7,7 +7,7 @@ import wordle.util.TopN
 import scala.collection.mutable
 
 object MenuConsoleBuilder {
-  def apply(model: Model, guessScoreInfo: Map[Word, Seq[ScoreInfo]]): (Model, Cmd) = {
+  def apply(model: Model[_], guessScoreInfo: Map[Word, Seq[ScoreInfo]]): (Model[_], Cmd) = {
     def menuPrompt(menu: Seq[((Word, Seq[ScoreInfo], String), Int)]): String = {
       val sb = mutable.StringBuilder(s"${menu.size} best words:\n")
       sb ++= "\t\t\test guesses\tP(word)\tE(word)\n"

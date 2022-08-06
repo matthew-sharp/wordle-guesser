@@ -5,7 +5,7 @@ import wordle.model.{Model, popConsole, setBoardResult}
 import wordle.{Cmd, Msg}
 
 object InteractiveUpdate {
-  def update(msg: Msg, model: Model): Option[(Model, Cmd)] = {
+  def update(msg: Msg, model: Model[_]): Option[(Model[_], Cmd)] = {
     msg match
       case SetGuess(g) => Some((model.copy(currentGuess = g).popConsole, Cmd.AdvanceSolver))
       case SetResult(r, n) =>
