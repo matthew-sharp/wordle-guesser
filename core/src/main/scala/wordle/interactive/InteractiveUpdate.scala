@@ -1,7 +1,7 @@
 package wordle.interactive
 
 import wordle.interactive.MsgInteractive.*
-import wordle.model.{Model, popConsole, setBoardResult}
+import wordle.model.*
 import wordle.{Cmd, Msg}
 
 object InteractiveUpdate {
@@ -14,6 +14,8 @@ object InteractiveUpdate {
           if (poppedModel.consoles.exists(c => c.conType == ResultConsole)) Cmd.Nothing
           else Cmd.AdvanceSolver))
       case InteractiveSolve(n) => Some(StartInteractiveSolve(model, n))
+      case ScoreSingleWord(w) => Some(model.setOutputMsgIfNotBatch(model.solver)
+        , Cmd.Nothing)
       case Abort => Some(model.popConsole, Cmd.Nothing)
       case _ => None
   }

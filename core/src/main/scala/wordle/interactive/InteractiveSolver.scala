@@ -1,11 +1,16 @@
 package wordle.interactive
 
 import wordle.Cmd
-import wordle.model.*
+import wordle.model.{Board, Word, *}
 
+import scala.collection.immutable.Map
 import scala.collection.parallel.CollectionConverters.RangeIsParallelizable
 
-case class InteractiveSolver(scorer: Scorer, pruner: Pruner) extends Solver(scorer, pruner) {
+case class InteractiveSolver(scorer: Scorer,
+                             pruner: Pruner,
+                             boardScorers: Map[Board, (Word, Int) => ScoreInfo],
+                            )
+  extends Solver(scorer, pruner) {
   export InteractiveMarker.mark
 
   def prepGuesses(model: Model): (Model, Cmd) = {
@@ -19,6 +24,19 @@ case class InteractiveSolver(scorer: Scorer, pruner: Pruner) extends Solver(scor
       ))
     ).seq.toMap
 
-    MenuConsoleBuilder(model, guessScore)
+    MenuConsoleBuilder(model.copy(
+      solver = model.solver.copy(
+        boardScorers = boardScorers
+      )
+    ), guessScore)
   }
+
+  def score(w: Word, guessNum: Int): ScoreInfo = {
+    val unsolvedBoards = boardScorers.keys.filter(b => !b.isSolved)
+    unsolvedBoards.map(b => boardScorers(b)(w, guessNum)).head
+  }
+}
+
+object InteractiveSolver {
+  def apply(scorer: Scorer, pruner: Pruner): InteractiveSolver = InteractiveSolver(scorer = scorer, pruner = pruner, Map.empty)
 }
