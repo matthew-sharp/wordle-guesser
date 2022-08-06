@@ -1,7 +1,7 @@
 package wordle.model
 
 trait FlatScorer {
-  def score(remainingValidWords: IArray[Word])(candidate: Word, guessNum: Int): ScoreInfo
+  def flatScore(remainingValidWords: IArray[Word])(candidate: Word, guessNum: Int): ScoreInfo
 }
 
 trait WeightedScorer {

@@ -16,7 +16,7 @@ case class EntropyScorer(resultsCache: CachedResults,
    */
   inline private val entropyPerGuessFactor = 13.0 / 4
 
-  inline def score(validAnswers: IArray[Word])(candidate: Word, guessNum: Int): ScoreInfo = {
+  inline def flatScore(validAnswers: IArray[Word])(candidate: Word, guessNum: Int): ScoreInfo = {
     val totalGuesses = validAnswers.size
     val totalLog = MemoizedLog(totalGuesses)
     val numByResult = validAnswers

@@ -30,6 +30,6 @@ trait Solver(scorer: Scorer, pruner: Pruner) {
         val preppedScorer = scorer.prepWeightedScoringRound(validWeights)
         (b, preppedScorer.weightedScore)
       }).toMap
-      case _ => unsolvedBoards.map(b => (b, scorer.score(IArray.from(b.currentlyPossibleAnswers)))).toMap
+      case _ => unsolvedBoards.map(b => (b, scorer.flatScore(IArray.from(b.currentlyPossibleAnswers)))).toMap
   }
 }
