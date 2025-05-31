@@ -2,7 +2,7 @@ name := "wordle"
 
 ThisBuild / version := "1.1.0"
 
-ThisBuild / scalaVersion := "3.1.3"
+ThisBuild / scalaVersion := "3.3.6"
 
 lazy val root = (project in file("."))
   .aggregate(core, weightList)
