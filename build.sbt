@@ -1,6 +1,6 @@
 name := "wordle"
 
-ThisBuild / version := "1.1.1"
+ThisBuild / version := "1.1.2"
 
 ThisBuild / scalaVersion := "3.3.6"
 
